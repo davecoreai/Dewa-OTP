@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f7f9">
+  <meta name="description" content="DEWA OTP adalah platform pengelolaan nomor virtual dan pesanan kode verifikasi OTP. Kelola saldo, order, dan riwayat dalam satu dashboard.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="application-name" content="DEWA OTP">
+  <link rel="canonical" href="https://dewaotp.my.id/dashboard">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="DEWA OTP">
+  <meta property="og:title" content="DEWA OTP — Platform Nomor Virtual & Verifikasi OTP">
+  <meta property="og:description" content="Kelola nomor virtual, saldo, dan pesanan OTP melalui dashboard DEWA OTP.">
+  <meta property="og:url" content="https://dewaotp.my.id/dashboard">
+  <meta property="og:image" content="https://dewaotp.my.id/_static/preview">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DEWA OTP — Platform Nomor Virtual & Verifikasi OTP">
+  <meta name="twitter:description" content="Kelola nomor virtual, saldo, dan pesanan OTP melalui dashboard DEWA OTP.">
+  <meta name="twitter:image" content="https://dewaotp.my.id/_static/preview">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"DEWA OTP","url":"https://dewaotp.my.id/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","inLanguage":"id","description":"Platform pengelolaan nomor virtual dan pesanan kode verifikasi OTP."}</script>
+  <title>DEWA OTP — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/_static/mark" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/_core/appearance">
+  <script defer src="/_core/interface"></script>
+</head>
+<body>
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <main id="auth-screen" class="auth-screen">
+    <section class="auth-showcase">
+      <a class="brand brand-light" href="#login" aria-label="DEWA OTP">
+        <span class="brand-mark">D</span><span>DEWA<span class="brand-muted">OTP</span></span>
+      </a>
+      <div class="showcase-copy">
+        <span class="eyebrow eyebrow-light">OTP PLATFORM</span>
+        <h1>Satu tempat untuk<br><span>semua kebutuhan OTP.</span></h1>
+        <p>Kelola nomor, saldo, dan pesanan OTP melalui dashboard yang sederhana dan transparan.</p>
+      </div>
+      <div class="showcase-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="glass-phone"><div class="phone-top"></div><div class="phone-label">VERIFICATION</div><div class="phone-code">••••••</div><div class="phone-pill"><i></i> Menunggu kode</div></div>
+        <div class="float-card float-left"><span class="float-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span><div><b>Secure session</b><small>Perlindungan akun</small></div></div>
+        <div class="float-card float-right"><span class="float-icon"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span><div><b>Live status</b><small>Pantau pesanan</small></div></div>
+      </div>
+      <div class="showcase-foot"><span>© 2026 DEWA OTP</span><span>Simple · Secure · Transparent</span></div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="mobile-brand brand"><span class="brand-mark">D</span><span>DEWA<span class="brand-muted">OTP</span></span></div>
+        <div class="auth-heading">
+          <span class="eyebrow">MEMBER AREA</span>
+          <h2 id="auth-title">Selamat datang kembali</h2>
+          <p id="auth-subtitle">Masuk untuk melanjutkan ke akun DEWA OTP.</p>
+        </div>
+        <form id="login-form" class="auth-form">
+          <label class="field"><span>Email</span><input name="email" type="email" placeholder="nama@email.com" autocomplete="email" required></label>
+          <label class="field"><span>Password</span><input name="password" type="password" placeholder="Masukkan password" autocomplete="current-password" required></label>
+          <button class="text-link forgot-link" type="button" id="forgot-password">Lupa password?</button>
+          <button class="btn btn-primary btn-full" type="submit">Login <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+          <div class="auth-divider"><span></span><small>ATAU</small><span></span></div>
+          <button class="btn btn-google btn-full" type="button" id="google-login"><i class="fa-brands fa-google" aria-hidden="true"></i> Login Menggunakan Google</button>
+          <p class="auth-switch-line">Belum punya akun? <button type="button" data-auth-tab="register">Register</button></p>
+        </form>
+        <form id="register-form" class="auth-form hidden">
+          <label class="field"><span>Nama</span><input name="name" type="text" placeholder="Nama lengkap" autocomplete="name" maxlength="80" required></label>
+          <label class="field"><span>Username</span><input name="username" type="text" placeholder="contoh: zhaastore" autocomplete="username" minlength="3" maxlength="24" required></label>
+          <label class="field"><span>Email</span><input name="email" type="email" placeholder="nama@email.com" autocomplete="email" required></label>
+          <label class="field"><span>Password</span><input name="password" type="password" placeholder="Minimal 8 karakter" autocomplete="new-password" minlength="8" required></label>
+          <div class="captcha-shell" aria-live="polite"><div id="recaptcha-container"></div><small id="captcha-hint">Memeriksa konfigurasi keamanan…</small></div>
+          <button class="btn btn-primary btn-full" type="submit" disabled>Buat Akun <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+          <p class="auth-switch-line">Sudah punya akun? <button type="button" data-auth-tab="login">Login</button></p>
+        </form>
+        <form id="reset-password-form" class="auth-form hidden">
+          <label class="field"><span>Password baru</span><input name="password" type="password" placeholder="Minimal 8 karakter" minlength="8" autocomplete="new-password" required></label>
+          <label class="field"><span>Konfirmasi password</span><input name="confirmPassword" type="password" placeholder="Ulangi password baru" minlength="8" autocomplete="new-password" required></label>
+          <button class="btn btn-primary btn-full" type="submit">Simpan Password Baru <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+        </form>
+        <p class="auth-terms">Dengan melanjutkan, Anda menyetujui ketentuan layanan dan kebijakan privasi DEWA OTP.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="app-shell hidden" id="app-shell">
+    <div class="mobile-scrim" id="mobile-scrim"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <a class="brand" href="#home"><span class="brand-mark">D</span><span>DEWA<span class="brand-muted">OTP</span></span></a>
+        <button class="icon-btn sidebar-close" id="sidebar-close" type="button" aria-label="Tutup menu"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <div class="balance-card">
+        <div class="balance-top"><span>Saldo tersedia</span><span class="balance-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span></div>
+        <div class="balance-amount" id="sidebar-balance">Rp0</div>
+        <button type="button" class="balance-add" data-navigate="topup">+ Top Up Saldo</button>
+      </div>
+      <nav class="side-nav" aria-label="Menu utama">
+        <span class="nav-label">MENU UTAMA</span>
+        <button class="nav-item active" type="button" data-navigate="home"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><span>Home</span></button>
+        <button class="nav-item" type="button" data-navigate="buy"><i class="fa-solid fa-mobile-screen-button nav-ico" aria-hidden="true"></i><span>Beli Nomor</span></button>
+        <button class="nav-item" type="button" data-navigate="topup"><i class="fa-solid fa-wallet nav-ico" aria-hidden="true"></i><span>Beli Saldo</span></button>
+        <button class="nav-item" type="button" data-navigate="history"><i class="fa-solid fa-clock-rotate-left nav-ico" aria-hidden="true"></i><span>Riwayat</span></button>
+        <span class="nav-label nav-label-spaced">LAINNYA</span>
+        <button class="nav-item" type="button" data-navigate="account"><i class="fa-solid fa-shield-halved nav-ico" aria-hidden="true"></i><span>Akun &amp; Keamanan</span></button>
+        <button class="nav-item" type="button" data-navigate="support"><i class="fa-solid fa-headset nav-ico" aria-hidden="true"></i><span>Bantuan</span><span class="nav-badge">AI</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+                <button class="logout-btn" id="logout-btn" type="button"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Keluar</button>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div class="topbar-left"><button class="icon-btn menu-toggle" id="menu-toggle" type="button" aria-label="Buka menu"><i class="fa-solid fa-bars" aria-hidden="true"></i></button><div><div class="breadcrumb">DEWA OTP <span>/</span> <b id="breadcrumb-page">Home</b></div><div class="topbar-title" id="topbar-title">Dashboard</div></div></div>
+        <div class="topbar-right"><div class="system-status"><i></i><span>DEWA OTP</span></div></div>
+      </header>
+
+
+      <div class="page-content">
+        <section class="page-section active" id="page-home" data-page="home">
+          <div class="page-intro"><div><span class="eyebrow">OVERVIEW</span><h1>Halo, <span id="welcome-name">Pengguna</span></h1><p>Berikut ringkasan aktivitas akun Anda hari ini.</p></div><button type="button" class="btn btn-primary" data-navigate="buy"><i class="fa-solid fa-plus" aria-hidden="true"></i> Beli Nomor</button></div>
+          <div class="stats-grid personal-stats">
+            <article class="stat-card balance-stat"><div class="stat-head"><span>Saldo Saya</span><span class="stat-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span></div><strong id="home-balance">Rp0</strong><small>Saldo akun saat ini</small><button type="button" class="stat-link" data-navigate="topup">Tambah saldo <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></article>
+            <article class="stat-card"><div class="stat-head"><span>Total Pesanan</span><span class="stat-icon"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span></div><strong id="personal-orders">0</strong><small>Seluruh pesanan Anda</small></article>
+            <article class="stat-card"><div class="stat-head"><span>Total Order</span><span class="stat-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span></div><strong id="personal-total">0</strong><small>Aktivitas akun</small></article>
+          </div>
+          <div class="section-heading"><div><span class="eyebrow">PLATFORM STATISTICS</span><h2>Statistik Layanan</h2></div></div>
+          <div class="stats-grid global-stats">
+            <article class="stat-card compact-stat"><div class="stat-head"><span>Total Order</span><span class="stat-icon"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span></div><strong id="global-orders">—</strong><small>Semua transaksi platform</small></article>
+            <article class="stat-card compact-stat"><div class="stat-head"><span>Order Success</span><span class="stat-icon success-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span></div><strong id="global-success">—</strong><small>Pesanan berhasil</small></article>
+            <article class="stat-card compact-stat"><div class="stat-head"><span>Success Rate</span><span class="stat-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span></div><strong id="global-rate">—</strong><small>Rasio keberhasilan</small></article>
+          </div>
+          <div class="content-grid home-bottom">
+            <article class="panel"><div class="panel-heading"><div><h3>Pesanan Terbaru</h3><p>Aktivitas nomor terakhir Anda</p></div><button class="text-link" data-navigate="history" type="button">Lihat semua <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div><div id="recent-orders" class="recent-list"><div class="empty-state compact-empty"><span><i class="fa-solid fa-clock" aria-hidden="true"></i></span><b>Belum ada pesanan</b><small>Pesanan terbaru akan muncul di sini.</small></div></div></article>
+            <article class="panel quick-panel"><div class="panel-heading"><div><h3>Akses Cepat</h3><p>Mulai aktivitas Anda</p></div></div><button class="quick-action" data-navigate="buy" type="button"><span class="quick-icon"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i></span><span><b>Beli Nomor</b><small>Pilih layanan dan nomor OTP</small></span><strong><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></strong></button><button class="quick-action" data-navigate="topup" type="button"><span class="quick-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span><span><b>Tambah Saldo</b><small>Isi saldo melalui QRIS</small></span><strong><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></strong></button><button class="quick-action" data-navigate="support" type="button"><span class="quick-icon"><i class="fa-solid fa-headset" aria-hidden="true"></i></span><span><b>Hubungi Sonny</b><small>Asisten bantuan DEWA OTP</small></span><strong><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></strong></button></article>
+          </div>
+        </section>
+
+        <section class="page-section" id="page-buy" data-page="buy">
+          <div class="page-intro"><div><span class="eyebrow">NUMBER SERVICES</span><h1>Beli Nomor</h1><p>Pilih aplikasi, negara, dan operator. Server akan dipilih otomatis berdasarkan harga dan stok.</p></div><span class="soft-chip"><i></i> Auto server selection</span></div>
+          <div class="purchase-layout">
+            <div class="purchase-main">
+              <article class="panel filter-panel"><div class="panel-heading"><div><h3>Filter Layanan</h3><p>Tentukan kebutuhan nomor Anda</p></div><span class="step-badge">01</span></div>
+                <div class="form-grid"><label class="field country-field"><span>Negara</span>
+                  <div class="country-picker" id="country-picker">
+                    <button class="country-trigger" id="country-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                      <span id="country-selected-label">Memuat negara dari provider...</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="country-overlay" id="country-overlay" hidden>
+                      <label class="country-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="country-search" type="search" placeholder="Cari negara..." autocomplete="off"></label>
+                      <div class="country-options" id="country-options" role="listbox" aria-label="Daftar negara"><div class="country-empty">Memuat negara...</div></div>
+                    </div>
+                  </div>
+                  <select id="country-select" class="country-value" aria-hidden="true" tabindex="-1"><option value="" selected>Memuat negara dari provider...</option></select>
+                </label><label class="field"><span>Operator</span><select id="operator-select"><option value="any">Semua Operator</option><option value="telkomsel">Telkomsel</option><option value="indosat">Indosat</option><option value="xl">XL</option><option value="three">Tri</option><option value="smartfren">Smartfren</option></select></label></div>
+              </article>
+              <div class="panel-heading app-heading"><div><h3>Pilih Aplikasi</h3><p>Daftar aplikasi pilihan untuk aktivasi OTP</p></div><div class="search-box"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="service-search" type="search" placeholder="Cari aplikasi..."></div></div>
+              <div class="app-catalog" id="app-catalog"><div class="empty-state"><b>Memuat katalog provider…</b><small>Layanan dan harga diambil langsung dari Nokos.</small></div>
+              </div>
+            </div>
+            <aside class="panel purchase-summary"><div class="panel-heading"><div><h3>Ringkasan</h3><p>Detail pilihan nomor</p></div><span class="step-badge">02</span></div>
+              <div class="selected-app"><span class="app-logo app-default" id="summary-app-logo">—</span><div><b id="summary-app-name">Belum dipilih</b><small id="summary-country">Indonesia (+62)</small></div></div>
+              <div class="summary-row"><span>Operator</span><b id="summary-operator">Semua Operator</b></div><div class="summary-row"><span>Server</span><b class="auto-value">Otomatis</b></div><div class="summary-row"><span>Stok tersedia</span><b id="summary-stock">—</b></div>
+              <div class="auto-server-box"><span class="auto-server-icon"><i class="fa-solid fa-server" aria-hidden="true"></i></span><div><b>Auto Server</b><small>Sistem memilih harga terendah dengan stok tersedia dari s1 dan s2.</small></div></div>
+              <div class="price-total"><span>Estimasi harga</span><strong id="summary-price">—</strong></div>
+              <button class="btn btn-primary btn-full" type="button" id="buy-number-btn">Beli Nomor <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+              <p class="panel-note">Harga final dikunci sebelum saldo dipotong. Pastikan saldo mencukupi.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="page-section" id="page-otp" data-page="otp">
+          <div class="page-intro"><div><span class="eyebrow">ORDER VERIFICATION</span><h1>Detail Pesanan OTP</h1><p>Pantau pesan masuk, periksa kode, atau ajukan refund sesuai status provider.</p></div><button class="btn btn-ghost" type="button" data-navigate="history"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Riwayat</button></div>
+          <div class="otp-layout">
+            <article class="panel otp-main-card"><div class="otp-status-head"><div><span class="eyebrow">STATUS PESANAN</span><h2 id="otp-status-text">Menunggu OTP</h2></div><span class="status-pill pending" id="otp-status-pill"><i></i> Waiting</span></div>
+              <div class="otp-number-card"><div class="otp-card-top"><span>Nomor telepon</span><span class="copy-hint" id="copy-number">Salin nomor</span></div><div class="otp-phone" id="otp-phone">—</div><div class="otp-meta"><span id="otp-service-name">Layanan</span><span>·</span><span id="otp-order-id">ID: —</span></div></div>
+              <div class="otp-code-card"><span class="eyebrow">KODE OTP</span><div id="otp-code" class="otp-code">— — — — — —</div><p id="otp-helper">Kode OTP akan muncul otomatis setelah provider menerimanya.</p><button type="button" class="btn btn-primary btn-full" id="check-otp-btn"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Cek OTP Sekarang</button></div>
+              <div class="otp-action-row"><button type="button" class="btn btn-danger-outline" id="refund-btn">Ajukan Refund</button><span class="panel-note">Refund 100% hanya jika provider mengonfirmasi nomor dapat dibatalkan sebelum OTP diterima.</span></div>
+            </article>
+            <aside class="panel otp-side-card"><div class="panel-heading"><div><h3>Informasi Pesanan</h3><p>Rincian transaksi aktif</p></div></div><div class="summary-row"><span>Harga pembelian</span><b id="otp-price">—</b></div><div class="summary-row"><span>Server</span><b id="otp-server">—</b></div><div class="summary-row"><span>Waktu dibuat</span><b id="otp-created">—</b></div><div class="refund-info"><span><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></span><div><b>Kebijakan Refund</b><p>Saldo dikembalikan 100% jika pembatalan dikonfirmasi Nokos dan OTP belum diterima. Satu pesanan hanya dapat direfund satu kali.</p></div></div></aside>
+          </div>
+        </section>
+
+        <section class="page-section" id="page-topup" data-page="topup">
+          <div class="page-intro"><div><span class="eyebrow">WALLET</span><h1>Beli Saldo</h1><p>Isi saldo akun untuk melakukan pembelian nomor OTP.</p></div></div>
+          <div class="topup-layout"><article class="panel topup-form-panel"><div class="panel-heading"><div><h3>Nominal Deposit</h3><p>Pilih nominal atau masukkan jumlah sendiri</p></div></div>
+            <div class="topup-balance"><span>Saldo saat ini</span><b id="topup-current-balance">Rp0</b></div>
+            <div class="amount-grid"><button type="button" class="amount-option" data-amount="10000">Rp10.000</button><button type="button" class="amount-option" data-amount="20000">Rp20.000</button><button type="button" class="amount-option" data-amount="50000">Rp50.000</button><button type="button" class="amount-option" data-amount="100000">Rp100.000</button></div>
+            <label class="field"><span>Nominal lainnya</span><div class="money-input"><span>Rp</span><input type="number" id="custom-amount" min="10000" max="10000000" step="1000" placeholder="Masukkan nominal"></div><small>Minimal Rp10.000 · Maksimal Rp10.000.000</small></label>
+            <div class="payment-method"><span class="qris-mark"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span><div><b>QRIS</b><small>Bayar melalui bank atau e-wallet</small></div><span class="selected-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span></div>
+            <button type="button" class="btn btn-primary btn-full" id="create-payment-btn">Lanjutkan Pembayaran <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+            <p class="panel-note">Pembayaran hanya diaktifkan setelah koneksi DOKU dan webhook tervalidasi.</p>
+          </article><aside class="panel topup-aside"><div class="topup-illustration"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div><h3>Deposit lebih mudah</h3><p>Pilih nominal, buat tagihan QRIS, lalu selesaikan pembayaran sebelum kedaluwarsa.</p><div class="mini-benefit"><span><i class="fa-solid fa-check" aria-hidden="true"></i></span> Saldo otomatis diperbarui setelah callback valid</div><div class="mini-benefit"><span><i class="fa-solid fa-check" aria-hidden="true"></i></span> Riwayat deposit tersimpan di akun Anda</div><div class="mini-benefit"><span><i class="fa-solid fa-check" aria-hidden="true"></i></span> Satu callback hanya diproses satu kali</div></aside></div>
+          <div class="payment-result hidden" id="payment-result"><div class="payment-result-card"><span class="eyebrow">INVOICE QRIS</span><h3>Menunggu pembayaran</h3><p id="payment-result-message">QR pembayaran akan ditampilkan di sini.</p><img id="payment-qr" alt="QRIS pembayaran" class="payment-qr hidden"><b id="payment-amount"></b></div></div>
+        </section>
+
+        <section class="page-section" id="page-history" data-page="history">
+          <div class="page-intro"><div><span class="eyebrow">TRANSACTION LOG</span><h1>Riwayat</h1><p>Semua aktivitas deposit dan pembelian nomor pada akun Anda.</p></div></div>
+          <article class="panel history-panel"><div class="history-tabs"><button class="history-tab active" type="button" data-history-tab="orders">Riwayat Nomor <span id="history-order-count">0</span></button><button class="history-tab" type="button" data-history-tab="deposits">Riwayat Deposit <span id="history-deposit-count">0</span></button></div><div class="table-wrap"><table class="data-table"><thead id="history-head"></thead><tbody id="history-body"><tr><td colspan="5"><div class="empty-state"><span><i class="fa-solid fa-clock" aria-hidden="true"></i></span><b>Belum ada riwayat</b><small>Data transaksi akan muncul setelah aktivitas dilakukan.</small></div></td></tr></tbody></table></div></article>
+        </section>
+
+        <section class="page-section" id="page-account" data-page="account">
+          <div class="page-intro"><div><span class="eyebrow">PROFILE SETTINGS</span><h1>Akun &amp; Keamanan</h1><p>Kelola informasi profil dan keamanan akun Anda.</p></div></div>
+          <div class="account-layout"><article class="panel profile-panel"><div class="panel-heading"><div><h3>Profil Pengguna</h3><p>Informasi akun DEWA OTP</p></div></div><div class="profile-hero"><div><b id="account-display-name">Pengguna</b><span id="account-display-username">@username</span><small id="account-display-email"></small></div></div><form id="profile-form" class="stack-form"><label class="field"><span>Nama</span><input type="text" name="name" id="profile-name" maxlength="80"></label><label class="field"><span>Username</span><input type="text" name="username" id="profile-username" maxlength="24" disabled><small>Username tidak dapat diubah dari halaman ini.</small></label><button type="submit" class="btn btn-primary">Simpan Profil</button></form></article>
+            <article class="panel security-panel"><div class="panel-heading"><div><h3>Keamanan Akun</h3><p>Pengaturan akses dan perlindungan</p></div></div><div class="security-item"><span class="security-icon"><i class="fa-solid fa-key" aria-hidden="true"></i></span><div><b>Password</b><small>Kelola password melalui email pemulihan Supabase.</small></div><button type="button" id="account-forgot-password" class="text-link">Reset <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>
+            <div class="password-edit-block"><div class="panel-heading"><div><h3>Ganti Password</h3><p>Verifikasi password lama sebelum menyimpan perubahan.</p></div></div><form id="change-password-form" class="stack-form"><label class="field"><span>Password Lama</span><input name="oldPassword" type="password" autocomplete="current-password" required></label><label class="field"><span>Password Baru</span><input name="newPassword" type="password" minlength="8" autocomplete="new-password" required></label><label class="field"><span>Konfirmasi Password Baru</span><input name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required></label><button type="submit" class="btn btn-primary">Perbarui Password</button></form></div><div class="security-item"><span class="security-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span><div><b>Verifikasi email</b><small id="email-verification-status">Status akan diperiksa.</small></div></div><div class="security-warning"><b>Tips keamanan</b><p>Jangan pernah membagikan password, kode OTP login, atau API key kepada siapa pun.</p></div></article></div>
+        </section>
+
+        <section class="page-section support-screen" id="page-support" data-page="support">
+          <article class="chat-panel">
+            <div class="chat-header"><div class="chat-header-copy"><b>Sonny</b><small><i></i> Asisten DEWA OTP</small></div></div>
+            <div id="chat-messages" class="chat-messages" aria-live="polite">
+              <div class="chat-message bot"><div class="message-bubble"><p>Halo, saya Sonny.</p><p>Ada yang bisa saya bantu seputar pembelian nomor, saldo, status OTP, atau refund?</p></div></div>
+            </div>
+            <form id="chat-form" class="chat-input-row">
+              <textarea id="chat-input" rows="1" maxlength="2000" placeholder="Tulis pesan..." autocomplete="off" aria-label="Tulis pesan untuk Sonny"></textarea>
+              <button class="chat-send" type="submit" aria-label="Kirim pesan"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
+            </form>
+          </article>
+        </section>
+      </div>
+      <footer class="app-footer"><span>© 2026 DEWA OTP</span><span>Liquid Glass Interface</span></footer>
+    </main>
+    <div class="custom-overlay" id="logout-overlay" aria-hidden="true">
+      <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title">
+        <div class="confirm-icon"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></div>
+        <h2 id="logout-confirm-title">Apakah anda yakin ingin keluar?</h2>
+        <div class="confirm-actions">
+          <button class="confirm-no" id="cancel-logout" type="button">Tidak</button>
+          <button class="confirm-yes" id="confirm-logout" type="button">Iya</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
