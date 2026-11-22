@@ -244,12 +244,43 @@
       }
       if (Array.isArray(data.services) && data.services.length) {
         const iconMap = { wa: ['WA', 'app-wa'], tg: ['TG', 'app-tg'], dc: ['D', 'app-discord'], ig: ['IG', 'app-ig'], go: ['G', 'app-google'], sh: ['S', 'app-shopee'] };
+        const logoRules = [
+          { file: 'whatsapp.jpg', codes: ['wa', 'whatsapp'], names: ['whatsapp'] },
+          { file: 'telegram.jpg', codes: ['tg', 'telegram'], names: ['telegram'] },
+          { file: 'bigolive.jpg', codes: ['bigo', 'bigolive'], names: ['bigolive'] },
+          { file: 'google.jpg', codes: ['go', 'google', 'gmail', 'googlevoice'], names: ['google', 'gmail'] },
+          { file: 'facebook.jpg', codes: ['fb', 'facebook'], names: ['facebook'] },
+          { file: 'akulaku.jpg', codes: ['akulaku'], names: ['akulaku'] },
+          { file: 'blibli.jpg', codes: ['blibli'], names: ['blibli'] },
+          { file: 'openai.jpg', codes: ['openai', 'chatgpt', 'gpt'], names: ['openai', 'chatgpt'] },
+          { file: 'dana.jpg', codes: ['dana'], names: ['dana'] },
+          { file: 'claude.jpg', codes: ['claude', 'anthropic'], names: ['claude', 'anthropic'] },
+          { file: 'cursor.jpg', codes: ['cursor'], names: ['cursor'] },
+          { file: 'discord.jpg', codes: ['dc', 'discord'], names: ['discord'] },
+          { file: 'tiktok.jpg', codes: ['tt', 'tiktok'], names: ['tiktok'] },
+          { file: 'shopee.jpg', codes: ['sh', 'shopee'], names: ['shopee'] },
+          { file: 'snapchat.jpg', codes: ['snap', 'snapchat'], names: ['snapchat'] }
+        ];
+        const normalizeServiceKey = value => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const resolveServiceLogo = (code, name) => {
+          const codeKey = normalizeServiceKey(code);
+          const nameKey = normalizeServiceKey(name);
+          const matchByName = logoRules.find(rule =>
+            rule.names.some(alias => nameKey === alias || nameKey.includes(alias))
+          );
+          const match = matchByName || logoRules.find(rule => rule.codes.includes(codeKey));
+          return match ? `/images/apps/${match.file}` : null;
+        };
         const container = $('#app-catalog');
         const services = data.services.filter(item => item && /^[a-z0-9_-]{1,16}$/i.test(String(item.code || '')) && item.name).slice(0, 500);
         container.innerHTML = services.map(item => {
           const code = String(item.code);
           const [glyph, iconClass] = iconMap[code.toLowerCase()] || [code.slice(0, 2).toUpperCase(), 'app-default'];
-          return `<button class="app-card" data-service="${escapeHtml(code)}" data-name="${escapeHtml(item.name)}" type="button"><span class="app-logo ${iconClass}">${escapeHtml(glyph)}</span><span class="app-info"><b>${escapeHtml(item.name)}</b><small>${escapeHtml(code)}</small></span><span class="app-price">Pilih <i>→</i></span></button>`;
+          const logoPath = resolveServiceLogo(code, item.name);
+          const logoMarkup = logoPath
+            ? `<span class="app-logo app-logo-image"><img src="${logoPath}" alt="" loading="lazy" decoding="async"></span>`
+            : `<span class="app-logo ${iconClass}">${escapeHtml(glyph)}</span>`;
+          return `<button class="app-card" data-service="${escapeHtml(code)}" data-name="${escapeHtml(item.name)}" type="button">${logoMarkup}<span class="app-info"><b>${escapeHtml(item.name)}</b><small>${escapeHtml(code)}</small></span><span class="app-price">Pilih <i>→</i></span></button>`;
         }).join('');
         $$('.app-card', container).forEach(button => button.addEventListener('click', () => chooseService(button)));
         const first = $('.app-card', container);
@@ -307,8 +338,9 @@
     state.selectedService = button.dataset.service;
     state.selectedServiceName = button.dataset.name;
     const logo = $('.app-logo', button);
-    $('#summary-app-logo').className = logo.className;
-    $('#summary-app-logo').textContent = logo.textContent;
+    const summaryLogo = $('#summary-app-logo');
+    summaryLogo.className = logo.className;
+    summaryLogo.replaceChildren(...[...logo.childNodes].map(node => node.cloneNode(true)));
     $('#summary-app-name').textContent = state.selectedServiceName;
     updateQuote();
   }
