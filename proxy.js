@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
 export async function proxy(request) {
+  const incoming = request.nextUrl;
+  if (incoming.hostname === 'www.dewaotp.my.id') {
+    const canonical = new URL(incoming.pathname + incoming.search, 'https://dewaotp.my.id');
+    return NextResponse.redirect(canonical, 308);
+  }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return NextResponse.next({ request });

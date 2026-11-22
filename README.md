@@ -12,6 +12,47 @@ Project DEWA OTP dengan frontend **HTML + CSS + Vanilla JavaScript** dan backend
 - Database schema dengan RLS, wallet ledger, atomic reservation/debit, dan refund yang idempotent.
 - Pemilihan server Nokos otomatis berdasarkan harga jual terendah yang stoknya tersedia.
 
+## Domain produksi — dewaotp.my.id
+
+Domain kanonis project ini adalah **https://dewaotp.my.id**. Semua canonical URL, Open Graph, sitemap, robots, callback, dan konfigurasi contoh diarahkan ke domain tersebut.
+
+1. Vercel → Project → Settings → Domains → tambahkan `dewaotp.my.id` dan `www.dewaotp.my.id`.
+2. Ikuti record DNS persis yang Vercel tampilkan untuk domain Anda (record dapat berbeda menurut akun/konfigurasi). Tunggu verifikasi DNS dan sertifikat HTTPS aktif.
+3. Project mengalihkan host `www.dewaotp.my.id` ke host kanonis `dewaotp.my.id` dengan status 308. HTTPS pada domain utama harus aktif sebelum produksi.
+4. Vercel → Settings → Environment Variables: set `NEXT_PUBLIC_SITE_URL=https://dewaotp.my.id` untuk Production, Preview, dan Development sesuai kebutuhan.
+5. Di Supabase Auth → URL Configuration, set Site URL `https://dewaotp.my.id` dan Redirect URLs minimal `https://dewaotp.my.id/auth/callback` (tambahkan localhost untuk pengembangan). Google OAuth redirect URI harus mengikuti URL callback Supabase yang ditampilkan dashboard Supabase.
+6. Google reCAPTCHA v2: tambahkan hostname `dewaotp.my.id` dan `www.dewaotp.my.id` ke daftar domain yang diizinkan. Isi site key dan secret di Vercel.
+
+## Webhook Nokos OTP
+
+API backend dipusatkan pada satu Next.js catch-all handler agar jumlah entrypoint API Vercel lebih rendah (semua URL API lama tetap dipertahankan). Endpoint callback:
+
+`POST https://dewaotp.my.id/api/webhooks/nokos`
+
+Nokos Quick Start menyebut payload callback `activation_id`, `phone_number`, dan `sms_code`. Handler memvalidasi secret, mencocokkan activation ID dengan order Supabase, memeriksa nomor jika provider mengirimkannya, menyimpan OTP melalui RPC idempotent, lalu memberi tahu provider bahwa aktivasi selesai. Polling OTP tetap aktif sebagai fallback.
+
+**Aktifkan secret sebelum memasang webhook:**
+
+1. Buat secret acak minimal 32 karakter, misalnya di Termux: `openssl rand -hex 32`.
+2. Simpan nilainya di Vercel Environment Variables sebagai `NOKOS_WEBHOOK_SECRET` (Production), lalu redeploy.
+3. Di Nokos dashboard → Profile → Webhooks, pasang URL `https://dewaotp.my.id/api/webhooks/nokos?key=SECRET_YANG_SAMA` dan aktifkan event SMS/OTP received. Jangan tempelkan URL berisi secret ke publik, issue tracker, atau screenshot.
+4. Jika dashboard Nokos mendukung custom header, lebih baik gunakan header `X-Webhook-Secret` dengan nilai yang sama dan hilangkan parameter `?key=` dari URL. Endpoint menerima header tersebut atau Bearer token.
+5. Kirim test event dari dashboard jika tersedia, lalu pastikan respons HTTP 200 dan OTP tersimpan pada order yang sesuai. Tanpa secret yang benar, endpoint menolak callback; secret kosong tidak membuka endpoint.
+
+Secret query dapat tercatat di log URL. Gunakan header jika opsi tersebut tersedia. Bila provider tidak mendukung header dan Anda mengkhawatirkan paparan log, rotasi secret secara berkala.
+
+## SEO & indexing
+
+- Root domain adalah halaman landing yang berisi konten HTML server-rendered dan CTA ke dashboard di `/index.html`.
+- Metadata title/description, canonical, Open Graph, Twitter Card, JSON-LD WebApplication, favicon, dan social preview telah disiapkan.
+- Sitemap: `https://dewaotp.my.id/sitemap.xml`; robots: `https://dewaotp.my.id/robots.txt`.
+- Daftarkan domain sebagai Domain Property di Google Search Console, verifikasi DNS TXT di registrar, lalu submit sitemap URL di atas.
+- SEO tidak menjamin ranking. Untuk konten organik yang lebih kuat, tambahkan halaman publik berisi panduan asli (misalnya dokumentasi cara order, FAQ, kebijakan refund, dan kontak bantuan) sebelum melakukan promosi.
+
+## Batas Serverless Functions
+
+Endpoint API dipindahkan ke `app/api/[...path]/route.js` dan modul bisnisnya menjadi `handler.js`, sehingga Next.js tidak membuat satu route entrypoint untuk setiap endpoint API. URL endpoint tetap sama, termasuk `/api/orders/:id/otp`, `/api/orders/:id/refund`, dan webhook. Konfigurasi `vercel.json` hanya mengatur runtime/durasi, bukan fitur hard cap function; verifikasi jumlah function final di Vercel Deployment → Functions setelah deploy. Target konfigurasi ini adalah di bawah batas 12 entrypoint API, bukan klaim bahwa Vercel menyediakan properti `maxFunctions`.
+
 ## Jalankan lokal
 
 Persyaratan: Node.js 22+, npm, project Supabase.
@@ -31,7 +72,7 @@ Buka `http://localhost:3000`.
 3. Isi `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` di `.env.local`.
 4. Di Supabase Auth, aktifkan email confirmation, atur SMTP produksi, dan tambahkan URL redirect `http://localhost:3000/auth/callback` serta domain produksi.
 5. Untuk Google login, aktifkan provider Google di Supabase Auth dan isi Client ID/Secret OAuth Google pada dashboard Supabase.
-6. Buat reCAPTCHA v2 Checkbox pada Google reCAPTCHA Admin, daftarkan domain localhost dan domain produksi, lalu isi `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` serta `RECAPTCHA_SECRET_KEY`. Widget resmi dimuat dari Google; backend memverifikasi token ke SiteVerify, fail-closed jika key/token tidak tersedia, dan memeriksa hostname hasil verifikasi.
+6. Buat reCAPTCHA v2 Checkbox pada Google reCAPTCHA Admin, daftarkan domain localhost dan domain produksi, lalu isi `RECAPTCHA_SITE_KEY` serta `RECAPTCHA_SECRET_KEY`. Widget resmi dimuat dari Google; backend memverifikasi token ke SiteVerify, fail-closed jika key/token tidak tersedia, dan memeriksa hostname hasil verifikasi.
 
 ## Setup Nokos
 
@@ -107,8 +148,9 @@ dewa-otp/
 │   └── page.js              # redirect ke static Vanilla JS UI
 ├── lib/                     # Supabase, Nokos, HTTP, security helpers
 ├── public/
-│   ├── css/global.css
-│   ├── js/app.js
+│   ├── _ui-core-91c2.css
+│   ├── _client-4f82.js
+│   ├── favicon.svg
 │   └── index.html
 ├── sql/schema.sql
 ├── .env.example
@@ -116,3 +158,23 @@ dewa-otp/
 ```
 
 Catatan: folder project dipisah dengan nama `dewa-otp` (tanpa spasi).
+
+
+### Alias aset frontend
+
+Frontend memuat stylesheet dan JavaScript melalui path publik singkat `/interface` dan `/portal`; file sumber disimpan dengan nama internal berbeda melalui rewrite Next.js. Ini hanya merapikan URL aset yang tampil di browser, bukan mekanisme keamanan: kode frontend tetap dapat dilihat melalui browser dan Developer Tools.
+
+### Font Awesome
+
+Ikon merek layanan pada katalog menggunakan Font Awesome Free melalui CDN. Layanan yang tidak memiliki ikon merek pada paket tersebut menggunakan ikon kategori Font Awesome, bukan logo merek yang tidak akurat.
+
+## Catatan rilis v7 — Liquid Glass UI
+
+- Menghapus emoji dari antarmuka dan memakai Font Awesome untuk ikon katalog layanan serta ikon navigasi utama.
+- Menambahkan pemilih negara berbentuk overlay dengan pencarian, serta dialog konfirmasi keluar khusus.
+- Memindahkan switch Login/Register ke bawah form.
+- Menghapus avatar profil dari sidebar, avatar chat, panel pengantar bantuan, dan footer saat halaman bantuan dibuka.
+- Mengaktifkan streaming SSE Sonny dari OpenRouter dengan teks bertahap dan indikator tiga titik.
+- Membuat halaman bantuan memenuhi area di bawah topbar; composer menyesuaikan tinggi visual viewport saat keyboard mobile muncul.
+- Mengubah env Site Key menjadi `RECAPTCHA_SITE_KEY`.
+- Menggunakan alias path `/interface` dan `/portal` untuk aset CSS/JavaScript.

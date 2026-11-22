@@ -1,6 +1,32 @@
+const SITE = 'https://dewaotp.my.id';
+
 export const metadata = {
-  title: 'DEWA OTP',
-  description: 'Platform layanan nomor OTP dan pengelolaan saldo.'
+  metadataBase: new URL(SITE),
+  title: {
+    default: 'DEWA OTP — Platform Nomor Virtual & Verifikasi OTP',
+    template: '%s | DEWA OTP'
+  },
+  description: 'DEWA OTP adalah platform pengelolaan nomor virtual dan pesanan kode verifikasi OTP dengan dashboard akun, saldo, dan riwayat transaksi.',
+  applicationName: 'DEWA OTP',
+  category: 'technology',
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
+  openGraph: {
+    type: 'website',
+    locale: 'id_ID',
+    url: SITE,
+    siteName: 'DEWA OTP',
+    title: 'DEWA OTP — Platform Nomor Virtual & Verifikasi OTP',
+    description: 'Kelola nomor virtual, saldo, dan pesanan OTP melalui dashboard DEWA OTP.',
+    images: [{ url: '/og-dewa-otp.svg', width: 1200, height: 630, alt: 'DEWA OTP platform' }]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DEWA OTP — Platform Nomor Virtual & Verifikasi OTP',
+    description: 'Kelola nomor virtual, saldo, dan pesanan OTP melalui dashboard DEWA OTP.',
+    images: ['/og-dewa-otp.svg']
+  },
+  icons: { icon: '/favicon.svg', shortcut: '/favicon.svg', apple: '/favicon.svg' }
 };
 
 export default function RootLayout({ children }) {

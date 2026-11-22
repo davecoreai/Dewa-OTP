@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9fafb"/><stop offset="1" stop-color="#e8edf4"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="90" y="100" width="1020" height="430" rx="46" fill="#ffffff" stroke="#dce2ea" stroke-width="2"/>
+  <rect x="145" y="155" width="116" height="116" rx="30" fill="#111827"/>
+  <path d="M178 235v-44h22c18 0 29 9 29 22s-11 22-29 22z" fill="#fff"/>
+  <text x="300" y="236" font-family="Arial,sans-serif" font-size="68" font-weight="800" fill="#111827">DEWA OTP</text>
+  <text x="150" y="355" font-family="Arial,sans-serif" font-size="42" font-weight="700" fill="#252d3b">Platform Nomor Virtual &amp; OTP</text>
+  <text x="150" y="420" font-family="Arial,sans-serif" font-size="28" fill="#5b6472">Nomor • Saldo • Order • Verifikasi</text>
+  <rect x="150" y="465" width="280" height="8" rx="4" fill="#111827" opacity=".14"/>
+</svg>

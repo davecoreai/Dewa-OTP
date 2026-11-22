@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  async rewrites() {
+    return [
+      { source: '/interface', destination: '/_ui-core-91c2.css' },
+      { source: '/portal', destination: '/_client-4f82.js' }
+    ];
+  },
   async headers() {
     return [
       {
