@@ -1,8 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: '/index.html', destination: '/dashboard', permanent: true },
+      { source: '/index', destination: '/dashboard', permanent: true }
+    ];
+  },
   async rewrites() {
     return [
+      { source: '/dashboard', destination: '/index.html' },
       { source: '/interface', destination: '/_ui-core-91c2.css' },
       { source: '/portal', destination: '/_client-4f82.js' }
     ];

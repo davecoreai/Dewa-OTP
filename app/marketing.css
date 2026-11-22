@@ -1,0 +1,60 @@
+.marketing{min-height:100vh;padding:0 clamp(18px,5vw,76px);background:#f5f7fa;color:#202633;font-family:Arial,Helvetica,sans-serif}
+.marketing *{box-sizing:border-box}
+.marketing-nav{height:74px;max-width:1320px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e4e8ef}
+.marketing-brand{display:flex;align-items:center;gap:10px;color:#202633;text-decoration:none;font-size:18px;font-weight:800;letter-spacing:-.5px}
+.brand-square{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:#202633;color:#fff;font-size:19px}
+.brand-muted{color:#8993a2}
+.marketing-nav nav{display:flex;align-items:center;gap:26px}
+.marketing-nav nav a{color:#697486;text-decoration:none;font-size:13px}
+.marketing-nav nav .nav-login{display:inline-flex;gap:13px;align-items:center;padding:10px 15px;border:1px solid #dce2ea;border-radius:12px;background:rgba(255,255,255,.72);color:#202633;font-weight:700}
+.marketing-hero{max-width:1320px;margin:auto;min-height:510px;padding:66px 0 70px;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:5vw}
+.marketing-eyebrow{margin:0 0 16px;color:#8490a1;font-size:10px;font-weight:800;letter-spacing:1.7px}
+.hero-copy h1{max-width:650px;margin:0;font-size:clamp(30px,3.7vw,48px);line-height:1.08;letter-spacing:-2.4px;font-weight:800}
+.hero-copy h1 span{color:#8994a4}
+.hero-description{max-width:520px;margin:20px 0;color:#687487;font-size:13px;line-height:1.65}
+.hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.primary-cta{display:inline-flex;align-items:center;justify-content:center;gap:20px;padding:13px 17px;border-radius:12px;background:#202633;color:#fff;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(26,36,52,.12);transition:transform .2s ease,box-shadow .2s ease}
+.primary-cta:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(26,36,52,.16)}
+.secondary-cta{padding:12px 13px;color:#566275;text-decoration:none;font-size:12px;font-weight:700}
+.hero-note{max-width:450px;margin:16px 0 0;color:#99a2af;font-size:11px;line-height:1.6}
+.hero-visual{position:relative;min-height:340px;display:grid;place-items:center;isolation:isolate}
+.visual-orb{position:absolute;z-index:-1;width:min(290px,75%);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 30%,rgba(255,255,255,.95),rgba(215,225,239,.72) 50%,rgba(231,237,246,.18) 72%)}
+.dashboard-card{position:relative;width:min(100%,360px);padding:24px;border:1px solid rgba(255,255,255,.95);border-radius:23px;background:rgba(255,255,255,.76);box-shadow:0 20px 58px rgba(34,48,70,.09),inset 0 1px 0 #fff;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transform:rotate(1.2deg)}
+.mini-top,.mini-footer{display:flex;align-items:center;justify-content:space-between;color:#7b8798;font-size:10px;font-weight:700}
+.online-dot{display:flex;align-items:center;gap:6px;color:#648b7a}.online-dot i,.mini-status i{width:6px;height:6px;border-radius:50%;background:#75a88d}
+.mini-label{margin-top:32px;color:#9aa4b3;font-size:9px;letter-spacing:1.3px}
+.mini-number{margin:8px 0 12px;color:#232c3b;font-size:24px;font-weight:800;letter-spacing:-.8px}
+.mini-status{display:flex;align-items:center;gap:7px;color:#758195;font-size:11px}.mini-status i{background:#d0a15d}
+.mini-code{display:flex;gap:7px;margin:20px 0}.mini-code span{flex:1;padding:11px 0;border:1px solid #e9edf2;border-radius:8px;background:rgba(242,245,249,.9);color:#adb6c3;text-align:center;font-size:16px}
+.mini-footer{padding-top:14px;border-top:1px solid #edf0f4}.mini-footer b{color:#455166}
+.floating-chip{position:absolute;display:flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid rgba(255,255,255,.9);border-radius:11px;background:rgba(255,255,255,.82);box-shadow:0 10px 28px rgba(32,44,62,.08);color:#596578;font-size:10px;font-weight:700;backdrop-filter:blur(8px)}
+.chip-a{top:45px;left:0}.chip-b{right:0;bottom:40px}
+.marketing-section,.how-section{max-width:1320px;margin:auto;padding:64px 0;border-top:1px solid #e4e8ef}
+.section-heading h2,.how-section h2,.marketing-cta h2{margin:0;font-size:clamp(24px,2.7vw,34px);line-height:1.12;letter-spacing:-1.4px}
+.section-heading>p:last-child{margin:13px 0 0;color:#768295;font-size:13px;line-height:1.6}
+.feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:30px}
+.feature-card{min-height:170px;padding:20px;border:1px solid rgba(255,255,255,.95);border-radius:17px;background:rgba(255,255,255,.66);box-shadow:0 8px 25px rgba(38,51,72,.04);backdrop-filter:blur(8px)}
+.feature-index{color:#a0aab8;font-size:10px;font-weight:800}
+.feature-card h3{margin:23px 0 8px;font-size:15px}.feature-card p{margin:0;color:#7b8697;font-size:12px;line-height:1.65}
+.how-section{display:grid;grid-template-columns:1fr 1fr;gap:5vw}
+.how-section ol{display:grid;gap:0;margin:0;padding:0;list-style:none}
+.how-section li{display:flex;gap:15px;padding:15px 0;border-bottom:1px solid #e4e8ef}
+.step-index{color:#9ba6b4;font-size:10px;font-weight:800}
+.how-section li div{display:grid;gap:5px}.how-section li b{color:#2b3443;font-size:13px}.how-section li small{color:#7c8797;font-size:12px;line-height:1.5}
+.marketing-cta{max-width:1320px;margin:24px auto 54px;padding:30px 32px;border:1px solid rgba(255,255,255,.9);border-radius:22px;background:linear-gradient(125deg,rgba(235,240,247,.9),rgba(255,255,255,.76));box-shadow:0 12px 34px rgba(34,47,68,.05);display:flex;align-items:center;justify-content:space-between;gap:20px}
+.marketing-cta .marketing-eyebrow{margin-bottom:10px}
+.marketing-cta h2{font-size:29px}
+.marketing-footer{max-width:1320px;margin:auto;padding:20px 0 28px;border-top:1px solid #e4e8ef;display:flex;justify-content:space-between;gap:14px;color:#929cab;font-size:11px}
+@media(max-width:850px){.marketing-hero{grid-template-columns:1fr;gap:18px;padding:52px 0 58px}.hero-visual{min-height:310px}.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.how-section{grid-template-columns:1fr;gap:25px}}
+@media(max-width:520px){.marketing{padding:0 16px}.marketing-nav{height:66px}.marketing-nav nav{gap:10px}.marketing-nav nav>a:not(.nav-login){display:none}.marketing-nav nav .nav-login{padding:9px 11px;font-size:11px}.hero-copy h1{font-size:32px;letter-spacing:-1.35px}.hero-description{font-size:13px}.hero-visual{min-height:275px}.dashboard-card{padding:19px}.chip-a{top:25px;left:-3px}.chip-b{right:-3px;bottom:22px}.feature-grid{grid-template-columns:1fr}.feature-card{min-height:unset}.marketing-cta{align-items:flex-start;flex-direction:column;padding:25px}.marketing-cta h2{font-size:25px}.marketing-footer{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){.primary-cta{transition:none}.primary-cta:hover{transform:none}}
+
+/* Lightweight Liquid Glass finish for the landing page. */
+.marketing{position:relative;isolation:isolate;background:linear-gradient(145deg,#f8fafc 0%,#f1f4f8 48%,#f8fafc 100%)}
+.marketing:before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(ellipse at 14% 10%,rgba(255,255,255,.95),transparent 42%),radial-gradient(ellipse at 88% 24%,rgba(211,222,239,.42),transparent 38%);}
+.marketing-nav{position:sticky;top:0;z-index:20;background:rgba(247,249,252,.76);border:1px solid rgba(255,255,255,.8);border-top:0;border-radius:0 0 17px 17px;backdrop-filter:blur(10px) saturate(125%);-webkit-backdrop-filter:blur(10px) saturate(125%);padding:0 16px}
+.dashboard-card,.floating-chip,.feature-card,.marketing-cta{border-color:rgba(255,255,255,.9);background:rgba(255,255,255,.66)}
+.dashboard-card{box-shadow:0 15px 38px rgba(34,48,70,.075),inset 0 1px 0 #fff;animation:landingFloat 9s ease-in-out infinite}
+.floating-chip{box-shadow:0 8px 22px rgba(32,44,62,.055)}
+@keyframes landingFloat{0%,100%{transform:translate3d(0,0,0) rotate(1deg)}50%{transform:translate3d(0,-6px,0) rotate(.4deg)}}
+@media(prefers-reduced-motion:reduce){.dashboard-card{animation:none}}

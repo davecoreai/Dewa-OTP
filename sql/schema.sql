@@ -34,13 +34,17 @@ create table if not exists public.wallet_transactions (
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  provider text not null default 'nokos',
+  provider text not null default 'nokosnesia',
   provider_activation_id text unique,
   service_code text not null,
   country_id integer not null default 6,
   operator text not null default 'any',
-  provider_server text not null check (provider_server in ('s1','s2')),
+  -- s1/s2 dipertahankan hanya untuk riwayat lama; order baru memakai Nokosnesia.
+  provider_server text not null check (provider_server in ('s1','s2','nokosnesia')),
   provider_price bigint not null check (provider_price >= 0),
+  provider_product_id bigint,
+  provider_platform_id bigint,
+  provider_dispatched_at timestamptz,
   price bigint not null check (price >= 0),
   phone_number text,
   otp_code text,
@@ -57,6 +61,14 @@ create table if not exists public.orders (
 
 create index if not exists orders_user_created_idx on public.orders(user_id, created_at desc);
 create index if not exists orders_status_idx on public.orders(status, created_at);
+
+-- Migration to Nokosnesia API v1; safe to run on an existing DEWA OTP database.
+alter table public.orders alter column provider set default 'nokosnesia';
+alter table public.orders add column if not exists provider_product_id bigint;
+alter table public.orders add column if not exists provider_platform_id bigint;
+alter table public.orders add column if not exists provider_dispatched_at timestamptz;
+alter table public.orders drop constraint if exists orders_provider_server_check;
+alter table public.orders add constraint orders_provider_server_check check (provider_server in ('s1','s2','nokosnesia'));
 
 create table if not exists public.deposits (
   id uuid primary key default gen_random_uuid(),
@@ -157,7 +169,7 @@ declare
 begin
   if auth.role() <> 'service_role' then raise exception 'UNAUTHORIZED'; end if;
   if p_sale_price <= 0 or p_provider_price < 0 then raise exception 'INVALID_PRICE'; end if;
-  if p_provider_server not in ('s1','s2') then raise exception 'INVALID_SERVER'; end if;
+  if p_provider_server not in ('s1','s2','nokosnesia') then raise exception 'INVALID_SERVER'; end if;
 
   select id into existing_id from public.orders
     where user_id = p_user_id and idempotency_key = p_idempotency_key;
@@ -190,7 +202,26 @@ end;
 $$;
 
 
--- Jika provider mengembalikan error penolakan eksplisit saat getNumber, lepas reservasi saldo.
+-- Klaim satu kali untuk mencegah request bersamaan membuat dua order provider.
+create or replace function public.claim_order_provider_dispatch(p_user_id uuid, p_order_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare changed integer;
+begin
+  if auth.role() <> 'service_role' then raise exception 'UNAUTHORIZED'; end if;
+  update public.orders set provider_dispatched_at = now(), updated_at = now()
+    where id = p_order_id and user_id = p_user_id
+      and status = 'creating' and provider_activation_id is null
+      and provider_dispatched_at is null;
+  get diagnostics changed = row_count;
+  return changed = 1;
+end;
+$$;
+
+-- Jika Nokosnesia menolak create order secara definitif, lepas reservasi saldo.
 -- Fungsi ini hanya menerima order berstatus creating (belum ada activation ID).
 create or replace function public.refund_failed_order(p_user_id uuid, p_order_id uuid)
 returns boolean
@@ -212,7 +243,7 @@ begin
 end;
 $$;
 
--- Mengunci order sebelum menghubungi cancelActivation di provider.
+-- Mengunci order sebelum meminta pembatalan pada provider.
 create or replace function public.begin_order_refund(p_user_id uuid, p_order_id uuid)
 returns boolean
 language plpgsql
@@ -375,3 +406,5 @@ grant execute on function public.complete_order_with_otp(uuid,uuid,text) to serv
 
 revoke all on function public.refund_failed_order(uuid,uuid) from public;
 grant execute on function public.refund_failed_order(uuid,uuid) to service_role;
+revoke all on function public.claim_order_provider_dispatch(uuid,uuid) from public;
+grant execute on function public.claim_order_provider_dispatch(uuid,uuid) to service_role;

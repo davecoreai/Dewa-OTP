@@ -21,9 +21,6 @@
   <meta name="twitter:image" content="https://dewaotp.my.id/og-dewa-otp.svg">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"DEWA OTP","url":"https://dewaotp.my.id/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","inLanguage":"id","description":"Platform pengelolaan nomor virtual dan pesanan kode verifikasi OTP."}</script>
   <title>DEWA OTP — Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="/interface">
@@ -142,20 +139,20 @@
         </section>
 
         <section class="page-section" id="page-buy" data-page="buy">
-          <div class="page-intro"><div><span class="eyebrow">NUMBER SERVICES</span><h1>Beli Nomor</h1><p>Pilih aplikasi, negara, dan operator. Server akan dipilih otomatis berdasarkan harga dan stok.</p></div><span class="soft-chip"><i></i> Auto server selection</span></div>
+          <div class="page-intro"><div><span class="eyebrow">NUMBER SERVICES</span><h1>Beli Nomor</h1><p>Pilih aplikasi, negara, dan operator. Harga serta stok diperbarui langsung dari katalog Nokosnesia.</p></div><span class="soft-chip"><i></i> Katalog live Nokosnesia</span></div>
           <div class="purchase-layout">
             <div class="purchase-main">
               <article class="panel filter-panel"><div class="panel-heading"><div><h3>Filter Layanan</h3><p>Tentukan kebutuhan nomor Anda</p></div><span class="step-badge">01</span></div>
-                <div class="form-grid"><label class="field country-field"><span>Negara</span><button class="country-picker-trigger" id="country-picker-trigger" type="button" aria-haspopup="dialog" aria-expanded="false"><span id="country-picker-value">Memuat negara dari provider…</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><select id="country-select" tabindex="-1" aria-hidden="true"><option value="" selected disabled>Memuat negara dari provider…</option></select></label><label class="field"><span>Operator</span><select id="operator-select"><option value="any">Semua Operator</option><option value="telkomsel">Telkomsel</option><option value="indosat">Indosat</option><option value="xl">XL</option><option value="three">Tri</option><option value="smartfren">Smartfren</option></select></label></div>
+                <div class="form-grid"><label class="field country-field"><span>Negara</span><button class="country-picker-trigger" id="country-picker-trigger" type="button" aria-haspopup="dialog" aria-expanded="false"><span id="country-picker-value">Memuat negara dari provider…</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><select id="country-select" tabindex="-1" aria-hidden="true"><option value="" selected disabled>Memuat negara dari provider…</option></select></label><label class="field"><span>Operator</span><select id="operator-select"><option value="any">Semua Operator</option></select></label></div>
               </article>
-              <div class="panel-heading app-heading"><div><h3>Pilih Aplikasi</h3><p>Daftar aplikasi pilihan untuk aktivasi OTP</p></div><div class="search-box"><span>⌕</span><input id="service-search" type="search" placeholder="Cari aplikasi..."></div></div>
-              <div class="app-catalog" id="app-catalog"><div class="empty-state"><b>Memuat katalog provider…</b><small>Layanan dan harga diambil langsung dari Nokos.</small></div>
+              <div class="panel-heading app-heading"><div><h3>Pilih Aplikasi</h3><p>Layanan aktif berdasarkan negara yang dipilih</p></div><div class="search-box"><span>⌕</span><input id="service-search" type="search" placeholder="Cari aplikasi..."></div></div>
+              <div class="app-catalog" id="app-catalog"><div class="empty-state"><b>Memuat katalog provider…</b><small>Layanan, operator, stok, dan harga diambil dari Nokosnesia.</small></div>
               </div>
             </div>
             <aside class="panel purchase-summary"><div class="panel-heading"><div><h3>Ringkasan</h3><p>Detail pilihan nomor</p></div><span class="step-badge">02</span></div>
               <div class="selected-app"><span class="app-logo app-default" id="summary-app-logo">—</span><div><b id="summary-app-name">Belum dipilih</b><small id="summary-country">Indonesia (+62)</small></div></div>
               <div class="summary-row"><span>Operator</span><b id="summary-operator">Semua Operator</b></div><div class="summary-row"><span>Server</span><b class="auto-value">Otomatis</b></div><div class="summary-row"><span>Stok tersedia</span><b id="summary-stock">—</b></div>
-              <div class="auto-server-box"><span class="auto-server-icon">✧</span><div><b>Auto Server</b><small>Sistem memilih harga terendah dengan stok tersedia dari s1 dan s2.</small></div></div>
+              <div class="auto-server-box"><span class="auto-server-icon"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></span><div><b>Harga dan stok live</b><small>Informasi diperbarui dari katalog produk Nokosnesia saat layanan dipilih.</small></div></div>
               <div class="price-total"><span>Estimasi harga</span><strong id="summary-price">—</strong></div>
               <button class="btn btn-primary btn-full" type="button" id="buy-number-btn">Beli Nomor <span>→</span></button>
               <p class="panel-note">Harga final dikunci sebelum saldo dipotong. Pastikan saldo mencukupi.</p>

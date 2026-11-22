@@ -9,6 +9,6 @@ export async function GET(request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
   const next = url.searchParams.get('next');
-  const target = next === '/reset-password' ? '/index.html?recovery=1' : '/index.html';
+  const target = next === '/reset-password' ? '/dashboard?recovery=1' : '/dashboard';
   return NextResponse.redirect(new URL(target, url.origin));
 }

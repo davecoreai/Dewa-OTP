@@ -24,7 +24,7 @@
 
   const state = {
     config: {}, user: null, page: 'home',
-    selectedService: null, selectedServiceName: '', selectedAmount: 0, catalogPrices: {},
+    selectedService: null, selectedServiceName: '', selectedAmount: 0, catalogPrices: {}, selectedProduct: null,
     currentOrder: null, pollTimer: null, historyTab: 'orders', history: { orders: [], deposits: [] }, captchaWidget: null, captchaReady: false, chatBusy: false
   };
 
@@ -274,93 +274,123 @@
     $('#country-search-input').focus();
   }
 
+  function renderServiceCards(services) {
+    const faRules = [
+      { match: /whatsapp|\bwa\b/i, icon: 'fa-whatsapp', brand: true },
+      { match: /telegram|\btg\b/i, icon: 'fa-telegram', brand: true },
+      { match: /bigo/i, icon: 'fa-video', brand: false },
+      { match: /google|gmail|googlevoice|\bgo\b/i, icon: 'fa-google', brand: true },
+      { match: /facebook|\bfb\b/i, icon: 'fa-facebook', brand: true },
+      { match: /akulaku|dana/i, icon: 'fa-wallet', brand: false },
+      { match: /blibli|shopee/i, icon: 'fa-bag-shopping', brand: false },
+      { match: /openai|chatgpt|\bgpt\b/i, icon: 'fa-brain', brand: false },
+      { match: /claude|anthropic/i, icon: 'fa-comments', brand: false },
+      { match: /cursor/i, icon: 'fa-terminal', brand: false },
+      { match: /discord|\bdc\b/i, icon: 'fa-discord', brand: true },
+      { match: /tiktok|\btt\b/i, icon: 'fa-tiktok', brand: true },
+      { match: /snapchat|\bsnap\b/i, icon: 'fa-snapchat', brand: true }
+    ];
+    const getServiceIcon = (code, name) => faRules.find(rule => rule.match.test(`${name || ''} ${code || ''}`)) || { icon: 'fa-mobile-screen-button', brand: false };
+    const container = $('#app-catalog');
+    const normalized = (Array.isArray(services) ? services : []).filter(item => Number.isInteger(Number(item.platformId)) && Number(item.platformId) > 0 && item.name);
+    if (!normalized.length) {
+      container.innerHTML = '<div class="empty-state"><b>Tidak ada layanan untuk negara ini</b><small>Pilih negara lain atau periksa katalog Nokosnesia.</small></div>';
+      state.selectedService = null;
+      state.selectedProduct = null;
+      $('#summary-price').textContent = 'Tidak tersedia';
+      $('#summary-stock').textContent = 'Tidak tersedia';
+      return;
+    }
+    container.innerHTML = normalized.map(item => {
+      const code = String(item.platformId);
+      const logo = getServiceIcon(item.code || code, item.name);
+      const logoMarkup = `<span class="app-logo app-logo-fa"><i class="${logo.brand ? 'fa-brands' : 'fa-solid'} ${logo.icon}" aria-hidden="true"></i></span>`;
+      return `<button class="app-card" data-service="${escapeHtml(code)}" data-name="${escapeHtml(item.name)}" type="button">${logoMarkup}<span class="app-info"><b>${escapeHtml(item.name)}</b><small>ID layanan ${escapeHtml(code)} · pilih untuk cek stok</small></span><span class="app-price">Pilih <i>→</i></span></button>`;
+    }).join('');
+    $$('.app-card', container).forEach(button => button.addEventListener('click', () => chooseService(button)));
+    const current = normalized.find(item => String(item.platformId) === String(state.selectedService));
+    const first = current ? $(`.app-card[data-service="${CSS.escape(String(current.platformId))}"]`, container) : $('.app-card', container);
+    if (first) chooseService(first);
+  }
+
+  async function loadServicesForCountry() {
+    const country = $('#country-select').value;
+    if (!country) return;
+    try {
+      const data = await api(`/api/catalog?country_id=${encodeURIComponent(country)}`);
+      renderServiceCards(data.services || []);
+    } catch (err) {
+      $('#app-catalog').innerHTML = `<div class="empty-state"><b>Layanan tidak dapat dimuat</b><small>${escapeHtml(err.message)}</small></div>`;
+      state.selectedService = null;
+      state.selectedProduct = null;
+    }
+  }
+
   async function loadCatalog() {
     try {
       const data = await api('/api/catalog');
       const countrySelect = $('#country-select');
       if (Array.isArray(data.countries) && data.countries.length) {
         const current = countrySelect.value;
-        countrySelect.innerHTML = data.countries.map(country => `<option value="${Number(country.id)}">${escapeHtml(country.name)} (${escapeHtml(country.prefix || '')})</option>`).join('');
-        if ([...countrySelect.options].some(option => option.value === current)) countrySelect.value = current;
+        countrySelect.innerHTML = data.countries.map(country => `<option value="${Number(country.id)}">${escapeHtml(country.name)} (+${escapeHtml(country.code || '')})</option>`).join('');
+        const indonesia = data.countries.find(country => String(country.iso || '').toUpperCase() === 'ID' || /indonesia/i.test(country.name));
+        const defaultId = String(indonesia?.id ?? data.countries[0].id);
+        countrySelect.value = [...countrySelect.options].some(option => option.value === current) ? current : defaultId;
         $('#summary-country').textContent = countrySelect.selectedOptions[0]?.textContent || '—';
         updateCountryPickerLabel();
       }
-      if (Array.isArray(data.services) && data.services.length) {
-        const faRules = [
-          { match: /whatsapp|\bwa\b/i, icon: 'fa-whatsapp', brand: true },
-          { match: /telegram|\btg\b/i, icon: 'fa-telegram', brand: true },
-          { match: /bigo/i, icon: 'fa-video', brand: false },
-          { match: /google|gmail|googlevoice|\bgo\b/i, icon: 'fa-google', brand: true },
-          { match: /facebook|\bfb\b/i, icon: 'fa-facebook', brand: true },
-          { match: /akulaku|dana/i, icon: 'fa-wallet', brand: false },
-          { match: /blibli|shopee/i, icon: 'fa-bag-shopping', brand: false },
-          { match: /openai|chatgpt|\bgpt\b/i, icon: 'fa-brain', brand: false },
-          { match: /claude|anthropic/i, icon: 'fa-comments', brand: false },
-          { match: /cursor/i, icon: 'fa-terminal', brand: false },
-          { match: /discord|\bdc\b/i, icon: 'fa-discord', brand: true },
-          { match: /tiktok|\btt\b/i, icon: 'fa-tiktok', brand: true },
-          { match: /snapchat|\bsnap\b/i, icon: 'fa-snapchat', brand: true }
-        ];
-        const getServiceIcon = (code, name) => {
-          const text = `${name || ''} ${code || ''}`;
-          return faRules.find(rule => rule.match.test(text)) || { icon: 'fa-mobile-screen-button', brand: false };
-        };
-        const container = $('#app-catalog');
-        const services = data.services.filter(item => item && /^[a-z0-9_-]{1,16}$/i.test(String(item.code || '')) && item.name).slice(0, 500);
-        container.innerHTML = services.map(item => {
-          const code = String(item.code);
-          const logo = getServiceIcon(code, item.name);
-          const logoMarkup = `<span class="app-logo app-logo-fa"><i class="${logo.brand ? 'fa-brands' : 'fa-solid'} ${logo.icon}" aria-hidden="true"></i></span>`;
-          return `<button class="app-card" data-service="${escapeHtml(code)}" data-name="${escapeHtml(item.name)}" type="button">${logoMarkup}<span class="app-info"><b>${escapeHtml(item.name)}</b><small>${escapeHtml(code)}</small></span><span class="app-price">Pilih <i>→</i></span></button>`;
-        }).join('');
-        $$('.app-card', container).forEach(button => button.addEventListener('click', () => chooseService(button)));
-        const first = $('.app-card', container);
-        if (first) chooseService(first);
-        else container.innerHTML = '<div class="empty-state"><b>Katalog provider kosong</b><small>Coba muat ulang atau hubungi bantuan.</small></div>';
-      } else { $('#app-catalog').innerHTML = '<div class="empty-state"><b>Katalog provider kosong</b><small>Provider tidak mengembalikan layanan.</small></div>'; }
-      await updateCatalogPrices();
-    } catch (err) { $('#app-catalog').innerHTML = '<div class="empty-state"><b>Katalog gagal dimuat</b><small>Periksa konfigurasi Nokos dan coba kembali.</small></div>'; $('#summary-price').textContent = 'Tidak tersedia'; $('#summary-stock').textContent = 'Tidak tersedia'; $('.auto-value').textContent = 'Tidak tersedia'; console.warn('Catalog:', err.message); }
+      await loadServicesForCountry();
+    } catch (err) {
+      $('#app-catalog').innerHTML = `<div class="empty-state"><b>Katalog Nokosnesia gagal dimuat</b><small>${escapeHtml(err.message)}. Periksa API Key di Vercel.</small></div>`;
+      $('#summary-price').textContent = 'Tidak tersedia';
+      $('#summary-stock').textContent = 'Tidak tersedia';
+    }
   }
 
   async function updateCatalogPrices() {
-    
-    try {
-      const data = await api(`/api/catalog/prices?country=${encodeURIComponent($('#country-select').value)}`);
-      state.catalogPrices = data.prices || {};
-      $$('.app-card').forEach(card => {
-        const quote = state.catalogPrices[card.dataset.service];
-        const stock = quote ? Number(quote.stock) : 0;
-        const meta = $('.app-info small', card);
-        if (meta) meta.textContent = `${card.dataset.service} · ${stock.toLocaleString('id-ID')} stok`;
-        let price = $('.app-card-price', card);
-        if (!price) {
-          price = document.createElement('small');
-          price.className = 'app-card-price';
-          $('.app-info', card)?.appendChild(price);
-        }
-        price.textContent = quote && stock > 0 ? money(quote.salePrice) : 'Stok kosong';
-        card.classList.toggle('out-of-stock', !quote || stock <= 0);
-      });
-      const selected = state.catalogPrices[state.selectedService];
-      $('#summary-price').textContent = selected && selected.stock > 0 ? money(selected.salePrice) : 'Stok tidak tersedia';
-      $('#summary-stock').textContent = selected && selected.stock > 0 ? `${selected.stock.toLocaleString('id-ID')} tersedia` : 'Tidak tersedia';
-      $('.auto-value').textContent = selected && selected.stock > 0 ? `${selected.serverName} (${selected.server})` : 'Tidak tersedia';
-    } catch (err) { console.warn('Catalog prices:', err.message); }
+    if (state.selectedService) await updateQuote();
   }
 
   async function updateQuote() {
-    
     const country = $('#country-select').value;
+    if (!country || !state.selectedService) return;
+    const operatorSelect = $('#operator-select');
+    const requestedOperator = operatorSelect.value || 'any';
+    $('#buy-number-btn').disabled = true;
     try {
-      const data = await api(`/api/catalog/quote?service=${encodeURIComponent(state.selectedService)}&country=${encodeURIComponent(country)}`);
-      const selected = data.selected;
+      const data = await api(`/api/catalog/quote?service=${encodeURIComponent(state.selectedService)}&country=${encodeURIComponent(country)}&operator=${encodeURIComponent(requestedOperator)}`);
+      const operators = Array.isArray(data.operators) ? data.operators : [];
+      const oldValue = operatorSelect.value || 'any';
+      const operatorOptions = [{ id: 'any', name: 'Semua Operator' }, ...operators.filter(item => item.id !== null && item.id !== undefined).map(item => ({ id: String(item.id), name: item.name }))];
+      const uniqueOptions = operatorOptions.filter((item, index, rows) => rows.findIndex(other => String(other.id) === String(item.id)) === index);
+      operatorSelect.innerHTML = uniqueOptions.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join('');
+      operatorSelect.value = uniqueOptions.some(item => String(item.id) === String(oldValue)) ? oldValue : 'any';
+
+      const selected = data.selected || null;
+      state.selectedProduct = selected;
+      const selectedOperatorName = selected?.operatorName || operatorSelect.selectedOptions[0]?.textContent || 'Semua Operator';
+      $('#summary-operator').textContent = selectedOperatorName;
       $('#summary-price').textContent = selected ? money(selected.salePrice) : 'Stok tidak tersedia';
       $('#summary-stock').textContent = selected ? `${selected.stock.toLocaleString('id-ID')} tersedia` : 'Tidak tersedia';
-      $('.auto-value').textContent = selected ? `${selected.serverName} (${selected.server})` : 'Tidak tersedia';
-    } catch {
-      $('#summary-price').textContent = 'Harga dicek saat order';
+      $('.auto-value').textContent = selected ? 'Nokosnesia · harga live' : 'Tidak tersedia';
+      $('#buy-number-btn').disabled = !selected || selected.stock <= 0;
+
+      const card = $(`.app-card[data-service="${CSS.escape(String(state.selectedService))}"]`);
+      if (card) {
+        const meta = $('.app-info small', card);
+        if (meta) meta.textContent = selected ? `${selected.stock.toLocaleString('id-ID')} stok · ${selectedOperatorName}` : 'Stok kosong untuk filter ini';
+        let price = $('.app-card-price', card);
+        if (!price) { price = document.createElement('small'); price.className = 'app-card-price'; $('.app-info', card)?.appendChild(price); }
+        price.textContent = selected ? money(selected.salePrice) : 'Stok kosong';
+        card.classList.toggle('out-of-stock', !selected || selected.stock <= 0);
+      }
+    } catch (err) {
+      state.selectedProduct = null;
+      $('#summary-price').textContent = 'Harga tidak tersedia';
       $('#summary-stock').textContent = 'Tidak dapat dimuat';
-      $('.auto-value').textContent = 'Otomatis';
+      $('.auto-value').textContent = 'Nokosnesia';
+      $('#buy-number-btn').disabled = true;
+      console.warn('Nokosnesia quote:', err.message);
     }
   }
 
@@ -368,6 +398,8 @@
     $$('.app-card').forEach(card => card.classList.toggle('selected', card === button));
     state.selectedService = button.dataset.service;
     state.selectedServiceName = button.dataset.name;
+    state.selectedProduct = null;
+    $('#operator-select').value = 'any';
     const logo = $('.app-logo', button);
     const summaryLogo = $('#summary-app-logo');
     summaryLogo.className = logo.className;
@@ -382,7 +414,7 @@
     $('#otp-service-name').textContent = order.serviceName || state.selectedServiceName;
     $('#otp-order-id').textContent = `Order Nokos: ${order.providerOrderId || '—'}`;
     $('#otp-price').textContent = money(order.price);
-    $('#otp-server').textContent = order.serverName || order.server || 'Otomatis';
+    $('#otp-server').textContent = order.serverName || 'Nokosnesia';
     $('#otp-created').textContent = dateTime(order.createdAt || new Date().toISOString());
     $('#otp-code').textContent = order.otp || '— — — — — —';
     setOtpStatus(order.status || 'pending');
@@ -406,24 +438,24 @@
 
   async function buyNumber() {
     const button = $('#buy-number-btn');
-    if (!state.selectedService) return toast('Pilih layanan dari katalog provider terlebih dahulu.', 'error');
+    if (!state.selectedService || !state.selectedProduct) return toast('Pilih layanan yang memiliki stok dan harga aktif terlebih dahulu.', 'error');
     if (!$('#country-select').value) return toast('Pilih negara dari katalog provider terlebih dahulu.', 'error');
     button.disabled = true;
     button.textContent = 'Memproses...';
     const country = Number($('#country-select').value);
-    const operator = $('#operator-select').value;
+    const operatorId = state.selectedProduct.operatorId;
     try {
         state.pendingIdempotencyKey = state.pendingIdempotencyKey || crypto.randomUUID();
         const idempotencyKey = state.pendingIdempotencyKey;
-        const data = await api('/api/orders', { method: 'POST', body: JSON.stringify({ service: state.selectedService, country, operator, idempotencyKey }) });
+        const data = await api('/api/orders', { method: 'POST', body: JSON.stringify({ platformId: Number(state.selectedService), countryId: country, catalogProductId: state.selectedProduct.catalogProductId, operatorId, serviceName: state.selectedServiceName, expectedPrice: Number(state.selectedProduct.salePrice), idempotencyKey }) });
         state.pendingIdempotencyKey = null;
-        const order = { id: data.orderId, providerOrderId: data.providerOrderId, phone: data.phone, price: data.price, server: data.server, serverName: data.server === 's2' ? 'Plus' : 'Ekonomi / Express', serviceName: state.selectedServiceName, status: 'pending', createdAt: new Date().toISOString() };
+        const order = { id: data.orderId, providerOrderId: data.providerOrderId, phone: data.phone, price: data.price, server: 'Nokosnesia', serverName: 'Nokosnesia', serviceName: state.selectedServiceName, status: 'pending', createdAt: new Date().toISOString() };
         renderOrder(order);
         await refreshMe();
         toast('Nomor berhasil dipesan. Menunggu OTP.', 'success');
     } catch (err) {
       if (['PROVIDER_REJECTED', 'OUT_OF_STOCK', 'RESERVE_FAILED'].includes(err.code)) state.pendingIdempotencyKey = null;
-      const retryNote = err.code === 'PROVIDER_ERROR' ? ' Retry berikutnya akan memakai kunci idempotensi yang sama untuk mencegah pembelian ganda.' : '';
+      const retryNote = ['PROVIDER_ERROR', 'ORDER_PENDING_SYNC'].includes(err.code) ? ' Periksa riwayat atau hubungi bantuan sebelum mencoba dengan kunci pesanan baru.' : '';
       toast(err.message + retryNote, 'error');
     }
     finally { button.disabled = false; button.innerHTML = 'Beli Nomor <span>→</span>'; }
@@ -741,8 +773,8 @@
     const value = event.target.value.toLowerCase();
     $$('.app-card').forEach(card => card.classList.toggle('hidden', !card.dataset.name.toLowerCase().includes(value)));
   });
-  $('#country-select').addEventListener('change', () => { const text = $('#country-select').selectedOptions[0]?.textContent || '—'; $('#summary-country').textContent = text; updateCountryPickerLabel(); updateQuote(); updateCatalogPrices(); });
-  $('#operator-select').addEventListener('change', () => { $('#summary-operator').textContent = $('#operator-select').selectedOptions[0].textContent; });
+  $('#country-select').addEventListener('change', async () => { const text = $('#country-select').selectedOptions[0]?.textContent || '—'; $('#summary-country').textContent = text; updateCountryPickerLabel(); state.selectedProduct = null; await loadServicesForCountry(); });
+  $('#operator-select').addEventListener('change', updateQuote);
   $('#buy-number-btn').addEventListener('click', buyNumber);
   $('#check-otp-btn').addEventListener('click', checkOtp);
   $('#refund-btn').addEventListener('click', refundOrder);
@@ -794,7 +826,7 @@
       $('#auth-switch').classList.remove('hidden');
       $('#auth-title').textContent = 'Password berhasil diubah';
       $('#auth-subtitle').textContent = 'Silakan login menggunakan password baru Anda.';
-      history.replaceState({}, '', '/index.html');
+      history.replaceState({}, '', '/dashboard');
     } catch (err) { toast(err.message, 'error'); }
     finally { button.disabled = false; }
   }

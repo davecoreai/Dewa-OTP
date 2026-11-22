@@ -1,62 +1,107 @@
-
 # DEWA OTP
 
-Project DEWA OTP dengan frontend **HTML + CSS + Vanilla JavaScript** dan backend **Next.js Route Handlers**, Supabase PostgreSQL, Nokos API, DOKU payment route (fail-closed until merchant-specific integration is configured), serta Sonny AI melalui OpenRouter.
+Rilis proyek: **v8 — Nokosnesia + Liquid Glass**. Ringkasan perubahan berada di `CHANGELOG.md`. Dokumentasi provider: https://www.nokosnesia.com/docs.
 
-## Isi project
+DEWA OTP adalah aplikasi nomor virtual dan penerimaan OTP. Frontend dashboard memakai HTML, CSS, serta Vanilla JavaScript; backend memakai Next.js Route Handler, Supabase PostgreSQL, dan API Nokosnesia REST API v1. Sonny AI terhubung melalui OpenRouter.
 
-- Login email/password, Register, Google OAuth entry point, reCAPTCHA v2 checkbox.
-- Dashboard, statistik pribadi, saldo, Beli Nomor, halaman OTP, refund, Beli Saldo, Riwayat, Akun & Keamanan, Sonny AI.
-- Responsive layout untuk desktop, tablet, dan mobile; sidebar menjadi drawer pada layar kecil.
-- Auto-polling OTP setiap 6 detik ketika halaman detail pesanan terbuka; berhenti setelah status final atau halaman ditinggalkan.
-- API auth berbasis sesi Supabase di cookie HttpOnly/Secure sesuai konfigurasi platform.
-- Database schema dengan RLS, wallet ledger, atomic reservation/debit, dan refund yang idempotent.
-- Pemilihan server Nokos otomatis berdasarkan harga jual terendah yang stoknya tersedia.
+## Fitur inti
 
-## Domain produksi — dewaotp.my.id
+- Login email/password, registrasi dengan reCAPTCHA v2, dan Google OAuth.
+- Dashboard, wallet internal, pembelian nomor, status OTP, refund, riwayat, pengaturan akun, dan Sonny AI.
+- Katalog negara, layanan, operator, stok, dan harga live dari Nokosnesia.
+- Harga jual DEWA dihitung dari harga `nokosnesia_price_idr` ditambah margin `PRICE_MARKUP_PERCENT`.
+- Produk dan harga diperiksa kembali di server sebelum saldo pengguna dipotong; browser hanya menerima harga jual, bukan harga modal provider.
+- Pemesanan menggunakan idempotency key; order eksternal dengan status ambigu tidak di-refund otomatis.
+- Polling OTP tiap 6 detik sebagai fallback ketika webhook tidak masuk.
+- Supabase RLS, cookie HttpOnly, atomic wallet ledger, dan refund idempotent.
+- UI Liquid Glass dibuat dengan blur ringan, transparansi, dan animasi transform/opacity; `prefers-reduced-motion` dihormati.
 
-Domain kanonis project ini adalah **https://dewaotp.my.id**. Semua canonical URL, Open Graph, sitemap, robots, callback, dan konfigurasi contoh diarahkan ke domain tersebut.
+## Domain dan URL
 
-1. Vercel → Project → Settings → Domains → tambahkan `dewaotp.my.id` dan `www.dewaotp.my.id`.
-2. Ikuti record DNS persis yang Vercel tampilkan untuk domain Anda (record dapat berbeda menurut akun/konfigurasi). Tunggu verifikasi DNS dan sertifikat HTTPS aktif.
-3. Project mengalihkan host `www.dewaotp.my.id` ke host kanonis `dewaotp.my.id` dengan status 308. HTTPS pada domain utama harus aktif sebelum produksi.
-4. Vercel → Settings → Environment Variables: set `NEXT_PUBLIC_SITE_URL=https://dewaotp.my.id` untuk Production, Preview, dan Development sesuai kebutuhan.
-5. Di Supabase Auth → URL Configuration, set Site URL `https://dewaotp.my.id` dan Redirect URLs minimal `https://dewaotp.my.id/auth/callback` (tambahkan localhost untuk pengembangan). Google OAuth redirect URI harus mengikuti URL callback Supabase yang ditampilkan dashboard Supabase.
-6. Google reCAPTCHA v2: tambahkan hostname `dewaotp.my.id` dan `www.dewaotp.my.id` ke daftar domain yang diizinkan. Isi site key dan secret di Vercel.
+Domain kanonis: `https://dewaotp.my.id`.
 
-## Webhook Nokos OTP
+- Landing page: `/`
+- Dashboard UI: `/dashboard` (rewrite internal ke berkas statis `public/index.html`).
+- `/index.html` dan `/index` diarahkan permanen ke `/dashboard`; nama file tidak ditampilkan sebagai URL utama.
+- Alias stylesheet dan JavaScript dashboard: `/interface` dan `/portal`.
+- Alias ini hanya merapikan URL browser; source frontend tetap dapat dilihat di Developer Tools.
 
-API backend dipusatkan pada satu Next.js catch-all handler agar jumlah entrypoint API Vercel lebih rendah (semua URL API lama tetap dipertahankan). Endpoint callback:
+Tambahkan domain `dewaotp.my.id` pada Vercel, ikuti DNS yang ditampilkan Vercel, dan set `NEXT_PUBLIC_SITE_URL=https://dewaotp.my.id`. Pada Supabase Auth, gunakan Site URL yang sama serta redirect URL `/auth/callback`. Tambahkan hostname pada Google reCAPTCHA.
 
-`POST https://dewaotp.my.id/api/webhooks/nokos`
+## Setup Nokosnesia
 
-Nokos Quick Start menyebut payload callback `activation_id`, `phone_number`, dan `sms_code`. Handler memvalidasi secret, mencocokkan activation ID dengan order Supabase, memeriksa nomor jika provider mengirimkannya, menyimpan OTP melalui RPC idempotent, lalu memberi tahu provider bahwa aktivasi selesai. Polling OTP tetap aktif sebagai fallback.
+API key dibuat dari Nokosnesia Dashboard → API Keys. API Key diawali `nokosnesia_` dan hanya boleh disimpan pada environment server.
 
-**Aktifkan secret sebelum memasang webhook:**
+Base URL resmi:
 
-1. Buat secret acak minimal 32 karakter, misalnya di Termux: `openssl rand -hex 32`.
-2. Simpan nilainya di Vercel Environment Variables sebagai `NOKOS_WEBHOOK_SECRET` (Production), lalu redeploy.
-3. Di Nokos dashboard → Profile → Webhooks, pasang URL `https://dewaotp.my.id/api/webhooks/nokos?key=SECRET_YANG_SAMA` dan aktifkan event SMS/OTP received. Jangan tempelkan URL berisi secret ke publik, issue tracker, atau screenshot.
-4. Jika dashboard Nokos mendukung custom header, lebih baik gunakan header `X-Webhook-Secret` dengan nilai yang sama dan hilangkan parameter `?key=` dari URL. Endpoint menerima header tersebut atau Bearer token.
-5. Kirim test event dari dashboard jika tersedia, lalu pastikan respons HTTP 200 dan OTP tersimpan pada order yang sesuai. Tanpa secret yang benar, endpoint menolak callback; secret kosong tidak membuka endpoint.
+`https://nokosnesia.com/api/v1`
 
-Secret query dapat tercatat di log URL. Gunakan header jika opsi tersebut tersedia. Bila provider tidak mendukung header dan Anda mengkhawatirkan paparan log, rotasi secret secara berkala.
+Autentikasi request dilakukan memakai:
 
-## SEO & indexing
+`Authorization: Bearer NOKOSNESIA_API_KEY`
 
-- Root domain adalah halaman landing yang berisi konten HTML server-rendered dan CTA ke dashboard di `/index.html`.
-- Metadata title/description, canonical, Open Graph, Twitter Card, JSON-LD WebApplication, favicon, dan social preview telah disiapkan.
-- Sitemap: `https://dewaotp.my.id/sitemap.xml`; robots: `https://dewaotp.my.id/robots.txt`.
-- Daftarkan domain sebagai Domain Property di Google Search Console, verifikasi DNS TXT di registrar, lalu submit sitemap URL di atas.
-- SEO tidak menjamin ranking. Untuk konten organik yang lebih kuat, tambahkan halaman publik berisi panduan asli (misalnya dokumentasi cara order, FAQ, kebijakan refund, dan kontak bantuan) sebelum melakukan promosi.
+Katalog yang diintegrasikan:
 
-## Batas Serverless Functions
+| Kebutuhan | Endpoint Nokosnesia |
+|---|---|
+| Daftar negara | `GET /catalog/countries` |
+| Daftar layanan | `GET /catalog/services?country_id=...` |
+| Daftar operator | `GET /catalog/operators?country_id=...&platform_id=...` |
+| Stok dan harga | `GET /catalog/products?country_id=...&platform_id=...` |
+| Buat order | `POST /orders/create` |
+| Status/OTP | `GET /orders/:id` |
+| Batalkan order | `POST /orders/:id/cancel` |
+| Selesaikan order | `POST /orders/:id/finish` |
+| Kirim ulang SMS | `POST /orders/:id/resend` |
 
-Endpoint API dipindahkan ke `app/api/[...path]/route.js` dan modul bisnisnya menjadi `handler.js`, sehingga Next.js tidak membuat satu route entrypoint untuk setiap endpoint API. URL endpoint tetap sama, termasuk `/api/orders/:id/otp`, `/api/orders/:id/refund`, dan webhook. Konfigurasi `vercel.json` hanya mengatur runtime/durasi, bukan fitur hard cap function; verifikasi jumlah function final di Vercel Deployment → Functions setelah deploy. Target konfigurasi ini adalah di bawah batas 12 entrypoint API, bukan klaim bahwa Vercel menyediakan properti `maxFunctions`.
+Website tidak menerima harga atau stok dari browser sebagai sumber kebenaran. Server meminta ulang katalog produk, memeriksa stok/harga, lalu membuat order dengan `catalog_product_id`, `country_id`, `platform_id`, dan optional `operator_id`. Harga jual DEWA dikunci saat reservasi wallet.
+
+Atur di Vercel → Project → Settings → Environment Variables:
+
+- `NOKOSNESIA_API_KEY`: API Key dari Nokosnesia.
+- `NOKOSNESIA_BASE_URL`: `https://nokosnesia.com/api/v1`.
+- `PRICE_MARKUP_PERCENT`: margin jual (contoh `20` berarti tambah 20% dari harga Nokosnesia).
+
+Setelah mengubah environment variables, lakukan redeploy. Jangan pernah menaruh API Key di `NEXT_PUBLIC_*`, `public/`, HTML, JavaScript browser, atau repository.
+
+### Webhook OTP Nokosnesia
+
+Callback DEWA OTP:
+
+`POST https://dewaotp.my.id/api/webhooks/nokosnesia`
+
+Handler memverifikasi header `x-nokosnesia-signature` dengan HMAC-SHA256 terhadap raw request body. Header diharapkan berformat `sha256=<hex_digest>`.
+
+1. Gunakan Webhook Secret yang ditetapkan atau diberikan oleh Nokosnesia untuk endpoint callback. Dokumentasi publik menjelaskan format HMAC dan header signature, tetapi tidak merinci alur pembuatan secret di panel akun; bila kolom/menu secret tidak tersedia, minta konfirmasi secret serta aktivasi webhook kepada support Nokosnesia.
+2. Simpan secret yang sama pada Vercel sebagai `NOKOSNESIA_WEBHOOK_SECRET` untuk Production.
+3. Daftarkan URL callback di atas pada dashboard Nokosnesia dan aktifkan event `order.otp_received` serta `order.cancelled`.
+4. Redeploy setelah menyimpan environment variable.
+5. Kirim test callback dari dashboard jika tersedia; verifikasi respons HTTP 200 dan status order.
+
+Jangan menaruh secret pada query URL. Jangan menggunakan format webhook Nokos.co.id/Nokos.id yang berbeda. Jika Nokosnesia mengubah format payload atau signature, sesuaikan handler dengan dokumentasi yang aktif dan lakukan test signature sebelum produksi.
+
+Event `deposit.completed` dari akun Nokosnesia tidak mengkreditkan wallet pengguna DEWA OTP. Deposit bisnis Nokosnesia dan wallet pengguna DEWA adalah dua saldo yang berbeda.
+
+## Setup Supabase
+
+1. Buat project Supabase.
+2. Jalankan seluruh `sql/schema.sql` pada Supabase SQL Editor. File ini juga menambahkan kolom provider Nokosnesia dan memperbolehkan nilai provider `nokosnesia` pada kolom server/order.
+3. Isi `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, dan `SUPABASE_SERVICE_ROLE_KEY` di environment server. Service Role Key tidak boleh dikirim ke browser.
+4. Aktifkan email confirmation dan konfigurasi SMTP produksi.
+5. Atur Google OAuth pada Supabase jika fitur login Google dipakai.
+6. Set `RECAPTCHA_SITE_KEY` dan `RECAPTCHA_SECRET_KEY`. Nama variabel tidak memakai prefix framework; Site Key tetap dikirim ke browser hanya melalui endpoint konfigurasi publik.
+
+## Deposit dan DOKU
+
+Endpoint `/api/payments` masih fail-closed (HTTP 503). Integrasi DOKU tidak boleh dianggap aktif atau digunakan untuk menerima dana sebelum kredensial merchant, signature, status pembayaran, nominal, referensi order, dan idempotency diverifikasi. Endpoint deposit Nokosnesia tidak otomatis menjadi deposit wallet DEWA OTP.
+
+## Sonny AI
+
+Isi `OPENROUTER_API_KEY` dan `OPENROUTER_MODEL`. Key hanya dibaca server. Jawaban Sonny disalurkan melalui streaming response.
 
 ## Jalankan lokal
 
-Persyaratan: Node.js 22+, npm, project Supabase.
+Persyaratan: Node.js 22+, npm, dan project Supabase.
 
 ```bash
 cp .env.example .env.local
@@ -64,120 +109,58 @@ npm install
 npm run dev
 ```
 
-Buka `http://localhost:3000`.
+Buka `http://localhost:3000`. Dashboard dapat dibuka di `http://localhost:3000/dashboard`.
 
-## Setup Supabase
-
-1. Buat project PostgreSQL baru di Supabase.
-2. Buka SQL Editor dan jalankan seluruh isi `sql/schema.sql`.
-3. Isi `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` di `.env.local`.
-4. Di Supabase Auth, aktifkan email confirmation, atur SMTP produksi, dan tambahkan URL redirect `http://localhost:3000/auth/callback` serta domain produksi.
-5. Untuk Google login, aktifkan provider Google di Supabase Auth dan isi Client ID/Secret OAuth Google pada dashboard Supabase.
-6. Buat reCAPTCHA v2 Checkbox pada Google reCAPTCHA Admin, daftarkan domain localhost dan domain produksi, lalu isi `RECAPTCHA_SITE_KEY` serta `RECAPTCHA_SECRET_KEY`. Widget resmi dimuat dari Google; backend memverifikasi token ke SiteVerify, fail-closed jika key/token tidak tersedia, dan memeriksa hostname hasil verifikasi.
-
-## Setup Nokos
-
-1. Ambil API key di dashboard Nokos dan simpan sebagai `NOKOS_API_KEY` pada server environment saja.
-2. Base URL default adalah `https://nokos.co.id/api/`.
-3. Sistem melakukan quote terhadap `s1` dan `s2`, lalu memilih harga terendah yang stoknya tersedia.
-4. Dokumentasi Nokos saat project ini dibuat menyebut `s1` sebagai **Server Express** dan `s2` sebagai **Server Plus**. Label UI menuliskan `Ekonomi / Express` untuk `s1` agar tidak salah menyebut tipe server provider.
-5. Setelah login, kartu aplikasi diambil dari endpoint `getServices` Nokos sehingga kode layanan mengikuti katalog aktual provider. Tidak ada katalog contoh atau transaksi demo; jika provider tidak tersedia, UI menampilkan status gagal dan transaksi tidak dibuat.
-6. Atur `PRICE_MARKUP_PERCENT` sesuai skema margin bisnis Anda.
-
-**Penting:** route order mengunci harga jual dari quote sebelum debit wallet. Karena pemanggilan provider adalah transaksi eksternal, timeout/response ambigu sengaja tidak di-refund otomatis; lakukan rekonsiliasi berdasarkan ID order/provider agar tidak terjadi double number atau refund saat provider sebenarnya sudah membuat nomor.
-
-## Setup DOKU
-
-Halaman QRIS dan endpoint `/api/payments` sengaja **fail-closed** (HTTP 503) karena integrasi QRIS DOKU belum selesai dengan kontrak merchant yang spesifik. Ini bukan simulasi pembayaran; tidak ada QR palsu atau saldo demo. Jangan digunakan untuk menerima uang sebelum:
-
-- Merchant DOKU disetujui untuk model bisnis DEWA OTP.
-- Request create payment QRIS dibangun sesuai dokumen dan kredensial merchant Anda.
-- Webhook signature, amount, order reference, status, dan idempotency diverifikasi di backend.
-- Pengkreditan wallet dilakukan dalam satu transaksi PostgreSQL yang idempotent.
-
-Jangan mengisi konfigurasi dengan nilai contoh atau menganggap format signature. Konfirmasikan penerimaan kategori bisnis dengan DOKU terlebih dahulu.
-
-## Setup Sonny AI
-
-Isi `OPENROUTER_API_KEY` dan `OPENROUTER_MODEL`. API key hanya dibaca di backend. Sonny dibatasi untuk bantuan informasi DEWA OTP dan tidak mempunyai akses ke data privat transaksi atau pengguna lain.
-
-## Environment variables
-
-Lihat `.env.example`. Semua key tanpa prefix `NEXT_PUBLIC_` hanya boleh ada di environment server/Vercel. `SUPABASE_SERVICE_ROLE_KEY` tidak boleh pernah dikirim ke browser. Jangan commit `.env.local`.
-
-## API yang tersedia
+## API DEWA OTP
 
 | Method | Endpoint | Fungsi |
 |---|---|---|
 | GET | `/api/config` | Konfigurasi publik non-rahasia |
-| POST | `/api/auth/register` | Register + reCAPTCHA |
-| POST | `/api/auth/login` | Login email/password |
-| GET | `/api/auth/google` | Memulai Google OAuth |
-| GET | `/api/auth/me` | Profil sesi aktif + saldo |
-| POST | `/api/auth/logout` | Logout |
-| POST | `/api/auth/reset-password` | Email reset password |
-| POST | `/api/auth/update-password` | Menyimpan password baru dari sesi recovery |
-| POST | `/api/auth/change-password` | Verifikasi password lama lalu ganti password |
-| PATCH | `/api/profile` | Update nama profil |
-| GET | `/api/catalog` | Services & countries Nokos |
-| GET | `/api/catalog/quote` | Quote harga/stok s1 dan s2 untuk layanan terpilih |
-| GET | `/api/catalog/prices` | Harga dan stok seluruh katalog provider |
-| POST | `/api/orders` | Reserve saldo dan beli nomor |
-| GET | `/api/orders/:id/otp` | Cek status OTP (rate limited) |
-| POST | `/api/orders/:id/refund` | Refund provider-confirmed |
-| GET | `/api/history` | Riwayat pengguna aktif |
-| POST | `/api/payments` | DOKU belum dikonfigurasi; fail-closed tanpa simulasi |
-| POST | `/api/sonny` | Sonny AI |
+| POST | `/api/auth/register` | Registrasi + reCAPTCHA |
+| POST | `/api/auth/login` | Login |
+| GET | `/api/auth/me` | Sesi aktif dan saldo |
+| GET | `/api/catalog` | Negara dan layanan |
+| GET | `/api/catalog/operators` | Operator untuk negara + platform |
+| GET | `/api/catalog/products` | Produk/stok/harga |
+| GET | `/api/catalog/quote` | Quote terpilih dan operator |
+| POST | `/api/orders` | Reservasi saldo dan buat nomor |
+| GET | `/api/orders/:id/otp` | Status OTP |
+| POST | `/api/orders/:id/refund` | Batalkan order dan refund wallet internal |
+| POST | `/api/orders/:id/resend` | Minta SMS ulang |
+| POST | `/api/webhooks/nokosnesia` | Callback terverifikasi HMAC-SHA256 |
+| GET | `/api/history` | Riwayat akun |
+| POST | `/api/payments` | DOKU belum diaktifkan |
+| POST | `/api/sonny` | Sonny AI streaming |
 
-## Sebelum produksi
+## Pemeriksaan sebelum produksi
 
-- Cocokkan seluruh kode layanan Nokos dengan katalog akun Anda. Statistik global tidak menampilkan angka palsu; tetap `—` sampai endpoint agregasi platform yang aman dan terotorisasi ditambahkan.
-- Lengkapi DOKU adapter dan webhook yang terverifikasi.
-- Tambahkan rate limiting terdistribusi untuk auth, order, dan Sonny (mis. Redis/Upstash/WAF); batas cek OTP per order sudah ada di handler, tetapi bukan pengganti rate limiter edge.
-- Tambahkan halaman syarat layanan, kebijakan privasi, kontak bantuan, logging, monitoring, backup database, dan prosedur rekonsiliasi transaksi.
-- Review kebijakan penggunaan layanan OTP pihak ketiga serta persyaratan legal dan provider aplikasi tujuan.
-- Uji bersamaan (concurrency), retry/idempotency, kegagalan jaringan, OTP datang ketika refund berjalan, serta callback pembayaran berulang di staging.
+- Pastikan API Key dan webhook secret berada pada environment Vercel yang benar.
+- Jalankan SQL schema/migration di Supabase sebelum deploy versi ini.
+- Uji katalog untuk beberapa negara, layanan, operator, dan kondisi stok kosong.
+- Uji create order, OTP polling, event webhook berulang, pembatalan sebelum OTP, pembatalan setelah OTP, timeout provider, dan retry idempotency.
+- Pastikan domain dashboard `/dashboard` terarah benar dan `/index.html` melakukan redirect.
+- Lengkapi DOKU, rate limiting terdistribusi, monitoring, backup database, kebijakan privasi, dan syarat layanan sebelum produksi.
 
-## Struktur ringkas
+## Struktur proyek
 
 ```text
 dewa-otp/
 ├── app/
-│   ├── api/                 # Next.js serverless route handlers
-│   ├── auth/callback/       # Supabase OAuth callback
+│   ├── api/[...path]/route.js       # Single API entrypoint
+│   ├── api/**/handler.js            # Handler modular per fitur
+│   ├── auth/callback/route.js
+│   ├── marketing.css                # Styling landing page
 │   ├── layout.js
-│   └── page.js              # redirect ke static Vanilla JS UI
-├── lib/                     # Supabase, Nokos, HTTP, security helpers
+│   └── page.js
+├── components/marketing/            # Komponen landing page modular per bagian
+├── lib/                              # Supabase, Nokosnesia, HTTP, security
 ├── public/
 │   ├── _ui-core-91c2.css
 │   ├── _client-4f82.js
-│   ├── favicon.svg
-│   └── index.html
+│   └── index.html                    # Dashboard static UI; route publik /dashboard
 ├── sql/schema.sql
 ├── .env.example
 └── README.md
 ```
 
-Catatan: folder project dipisah dengan nama `dewa-otp` (tanpa spasi).
-
-
-### Alias aset frontend
-
-Frontend memuat stylesheet dan JavaScript melalui path publik singkat `/interface` dan `/portal`; file sumber disimpan dengan nama internal berbeda melalui rewrite Next.js. Ini hanya merapikan URL aset yang tampil di browser, bukan mekanisme keamanan: kode frontend tetap dapat dilihat melalui browser dan Developer Tools.
-
-### Font Awesome
-
-Ikon merek layanan pada katalog menggunakan Font Awesome Free melalui CDN. Layanan yang tidak memiliki ikon merek pada paket tersebut menggunakan ikon kategori Font Awesome, bukan logo merek yang tidak akurat.
-
-## Catatan rilis v7 — Liquid Glass UI
-
-- Menghapus emoji dari antarmuka dan memakai Font Awesome untuk ikon katalog layanan serta ikon navigasi utama.
-- Menambahkan pemilih negara berbentuk overlay dengan pencarian, serta dialog konfirmasi keluar khusus.
-- Memindahkan switch Login/Register ke bawah form.
-- Menghapus avatar profil dari sidebar, avatar chat, panel pengantar bantuan, dan footer saat halaman bantuan dibuka.
-- Mengaktifkan streaming SSE Sonny dari OpenRouter dengan teks bertahap dan indikator tiga titik.
-- Membuat halaman bantuan memenuhi area di bawah topbar; composer menyesuaikan tinggi visual viewport saat keyboard mobile muncul.
-- Mengubah env Site Key menjadi `RECAPTCHA_SITE_KEY`.
-- Menggunakan alias path `/interface` dan `/portal` untuk aset CSS/JavaScript.
-=======
-# Dewa-OTP
+Folder root proyek adalah `dewa-otp`.
