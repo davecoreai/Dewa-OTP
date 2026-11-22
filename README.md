@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # DEWA OTP
 
 Project DEWA OTP dengan frontend **HTML + CSS + Vanilla JavaScript** dan backend **Next.js Route Handlers**, Supabase PostgreSQL, Nokos API, DOKU payment route (fail-closed until merchant-specific integration is configured), serta Sonny AI melalui OpenRouter.
@@ -181,4 +181,3 @@ Ikon merek layanan pada katalog menggunakan Font Awesome Free melalui CDN. Layan
 - Menggunakan alias path `/interface` dan `/portal` untuk aset CSS/JavaScript.
 =======
 # Dewa-OTP
->>>>>>> dbe86fbf865789b6a414af818aa566a1f2274828
